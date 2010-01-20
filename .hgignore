@@ -1,0 +1,8 @@
+syntax: glob
+*.pyc
+*~
+*.log
+*.pid
+*.sqp
+.DS_Store
+*.orig

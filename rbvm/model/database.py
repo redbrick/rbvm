@@ -110,7 +110,7 @@ class VirtualMachine(Base):
 	user_id = Column(ForeignKey('user_table.id'))
 	
 	properties = relation('Property',order_by='Property.id',backref='virtual_machine')
-	
+
 	def __repr__(self):
 		return "<VirtualMachine('%s')>" % (self.name)
 	
