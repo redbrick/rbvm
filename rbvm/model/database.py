@@ -4,6 +4,7 @@ import string
 import hashlib
 
 from sqlalchemy import Table,Column,MetaData,ForeignKey
+from sqlalchemy.schema import Sequence
 from sqlalchemy import Integer,String,DateTime,Unicode,SmallInteger,Text,Binary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation,backref
