@@ -65,6 +65,7 @@ def configure_session(dburi='sqlite:///database.sqlite',
     *echo*: whether to print SQL statements, default is False.
     *convert_unicode*: default is True, so you should use unicode strings
     """
+    print "configure_session"
     engine = _engines.get(dburi, None) # Look up the dict.
     if engine is None:              # If missing engine, create and store it.
         _engines[dburi] = engine = \

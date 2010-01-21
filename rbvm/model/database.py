@@ -32,7 +32,7 @@ class User(Base):
 		
 		salt = ''.join(random.Random().sample(string.letters + string.digits,9))
 		hash = hashlib.sha256()
-		hash.update(password + salt)
+		hash.update(password_plain + salt)
 		self.password = hash.hexdigest()
 		self.salt = salt
 

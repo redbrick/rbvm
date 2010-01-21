@@ -3,6 +3,7 @@ import cherrypy
 import string
 import os.path
 import rbvm.controller
+import sqlalchemy
 import rbvm.lib.sqlalchemy_tool
 import rbvm.config as config
 
@@ -29,12 +30,14 @@ def env_init():
 			'tools.SATransaction.on':True,
 			'tools.SATransaction.dburi':config.DATABASE_URI,
 			'tools.SATransaction.echo':False,
-			'tools.SATransaction.convert_unicode':True},
+			'tools.SATransaction.convert_unicode':True
+		},
 		'/static': {
 			'tools.staticdir.on' : True,
 			'tools.staticdir.dir': config.STATIC_DIR
 		}
 	}
+
 
 def standalone():
 	"""

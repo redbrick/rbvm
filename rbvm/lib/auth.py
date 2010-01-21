@@ -1,6 +1,6 @@
 import cherrypy
 from rbvm.model.database import *
-from rbvm.lib.sqlalchemy_tool import session
+import rbvm.lib.sqlalchemy_tool as database
 
 def get_user():
 	"""
@@ -11,7 +11,7 @@ def get_user():
 		return None
 	else:
 		username = cherrypy.session.get('username')
-		user = session.query(User).filter(User.username == username).first()
+		user = database.session.query(User).filter(User.username == username).first()
 		return user
 
 def require_login(func):
