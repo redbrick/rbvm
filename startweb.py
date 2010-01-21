@@ -18,7 +18,7 @@ def env_init():
 		'server.socket_host':config.HTTP_BIND_ADDRESS,
 		'server.socket_port':config.HTTP_PORT})
 	
-	cherrypy.tree.mount(bricket.controller.Root())
+	cherrypy.tree.mount(rbvm.controller.Root())
 	cherrypy.tree.apps[''].config = {
 		'/' : {
 			'tools.sessions.on':True,
