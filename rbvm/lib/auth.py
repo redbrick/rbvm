@@ -19,7 +19,7 @@ def require_login(func):
 	Decorator to require a user to be logged in
 	"""
 	def wrapper(*args, **kwargs):
-		if cherrypy.sesison.get('authenticated') == True:
+		if cherrypy.session.get('authenticated') == True:
 			return func(*args, **kwargs)
 		else:
 			raise cherrypy.HTTPRedirect('/login')
