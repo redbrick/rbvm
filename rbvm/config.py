@@ -9,6 +9,12 @@ STATIC_DIR = BASE_DIR + '/static'
 VIEW_DIR = BASE_DIR + '/views'
 LOG_DIR = BASE_DIR + '/logs'
 
+IMAGE_DIR = '/var/lib/rbvm/images'
+
+# Default sizes - all in MB unless otherwise specified
+DEFAULT_MEM = 128
+DEFAULT_IMAGE_SIZE = 4196
+
 ACCESS_LOG = 'access.log'
 ERROR_LOG = 'error.log'
 
@@ -21,3 +27,6 @@ ENVIRONMENT = 'production'
 
 SESSION_TIMEOUT = 3600
 
+# Tools
+TOOL_QEMU_IMG = '/usr/bin/qemu-img'
+TOOL_KVM = '/usr/bin/kvm'

@@ -1,5 +1,6 @@
 import cherrypy
 import hashlib
+import cherrypy.lib.sessions
 import rbvm.lib.sqlalchemy_tool as database
 import rbvm.lib.template as template
 from rbvm.lib.auth import get_user, require_login, require_nologin
@@ -30,4 +31,9 @@ class Root:
 				cherrypy.session['username'] = user_object.username
 				raise cherrypy.HTTPRedirect('/')
 		return template.render()
-		
+	
+	@cherrypy.expose
+	@template.output('logout.html')
+	def logout(self):
+		cherrypy.lib.sessions.expire()
+		return template.render()

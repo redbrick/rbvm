@@ -10,6 +10,7 @@
 	</py:match>
 	<py:match path="body" once="true">
 		<body py:attrs="select('@*')">
+			<div class="login_info" py:if="user">Logged in as ${user.username}. <a href="/logout">Logout</a></div>
 			${select('*|text()')}
 		</body>
 	</py:match>

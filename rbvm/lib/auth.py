@@ -37,4 +37,17 @@ def require_nologin(func):
 			return func(*args,**kwargs)
 	return wrapper
 
+def is_administrator():
+	"""
+	Finds the Administrator group, and checks if the current user is a member.
+	"""
+	user = get_user()
 
+	admin_group = database.session.query(Group).filter(Group.name=='Admins').first()
+	if admin_group is None:
+		return False
+	
+	if admin_group in user.groups:
+		return True
+	
+	return False

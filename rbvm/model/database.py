@@ -17,6 +17,7 @@ class User(Base):
 	"""
 	User
 	"""
+	# {{{
 	__tablename__ = 'user_table'
 	
 	id = Column(Integer,Sequence('user_table_id_seq'),primary_key=True)
@@ -35,16 +36,19 @@ class User(Base):
 		hash.update(password_plain + salt)
 		self.password = hash.hexdigest()
 		self.salt = salt
+	
+	# }}}
 
-user_group = Table('user_group',Base.metadata,
+user_group = Table('user_group',Base.metadata, # {{{
 	Column('user_id',Integer,ForeignKey('user_table.id')),
 	Column('group_id',Integer,ForeignKey('group_table.id'))
-)
+) # }}}
 
 class Group(Base):
 	"""
 	User gorup
 	"""
+	# {{{
 	__tablename__ = 'group_table'
 
 	id = Column(Integer,Sequence('group_table_id_seq'),primary_key=True)
@@ -57,11 +61,14 @@ class Group(Base):
 	
 	def __init__(self,name):
 		self.name = name
+	
+	# }}}
 
 class DiskImage(Base):
 	"""
 	A VM disk image
 	"""
+	# {{{
 	__tablename__ = 'disk_image'
 
 	id = Column(Integer,Sequence('disk_image_id_seq'),primary_key=True)
@@ -69,8 +76,7 @@ class DiskImage(Base):
 	size = Column(Integer)
 	filename = Column(Text,unique=True)
 	virtual_machine_id = Column(ForeignKey('virtual_machine.id'))
-	user_id = Column(ForeignKey('user_table.id'))
-
+	
 	def __repr__(self):
 		return "<DiskImage('%s')>" % (self.filename)
 	
@@ -79,13 +85,16 @@ class DiskImage(Base):
 		self.size = size
 		self.user_id = user.id
 		self.virtual_machine_id = virtual_machine.id
+	
+	# }}}
 
 class Property(Base):
 	"""
 	A VM property
 	"""
+	# {{{
 	__tablename__ = 'property'
-
+	
 	id = Column(Integer,Sequence('property_id_seq'),primary_key=True)
 	key = Column(String(255),nullable=False)
 	value = Column(String(255))
@@ -98,12 +107,13 @@ class Property(Base):
 		self.virtual_machine_id = virtual_machine.id
 		self.key = key
 		self.value = value
-	
+	# }}}
 
 class VirtualMachine(Base):
 	"""
 	A virtual machine
 	"""
+	# {{{
 	__tablename__ = 'virtual_machine'
 
 	id = Column(Integer,Sequence('virtual_machine_id_seq'),primary_key=True)
@@ -111,11 +121,12 @@ class VirtualMachine(Base):
 	user_id = Column(ForeignKey('user_table.id'))
 	
 	properties = relation('Property',order_by='Property.id',backref='virtual_machine')
-
+	
 	def __repr__(self):
 		return "<VirtualMachine('%s')>" % (self.name)
 	
 	def __init__(self,name,user):
 		self.name = name
 		self.user_id = user.id
+	# }}}
 

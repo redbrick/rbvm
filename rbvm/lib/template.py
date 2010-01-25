@@ -3,7 +3,7 @@ from genshi.core import Stream
 from genshi.output import encode, get_serializer
 from genshi.template import Context, TemplateLoader
 import rbvm.config as config
-from rbvm.lib.auth import get_user
+from rbvm.lib.auth import get_user, is_administrator
 
 loader = TemplateLoader(config.VIEW_DIR, auto_reload=True)
 
@@ -41,6 +41,11 @@ def render(*args,**kwargs):
 		kwargs['error'] = None
 	
 	kwargs['user'] = get_user()
+	if kwargs['user'] is not None:
+		kwargs['administrator'] = is_administrator()
+	else:
+		kwargs['administrator'] = False
+	
 	ctxt = Context(url=cherrypy.url)
 	ctxt.push(kwargs)
 	return template.generate(ctxt)

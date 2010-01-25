@@ -31,6 +31,6 @@ def populate():
 	admin.groups.append(users)
 	testing.groups.append(users)
 	session.commit()
-
+	
 if __name__ == '__main__':
 	populate()
