@@ -20,8 +20,8 @@ def populate():
 	session.commit()
 
 	print "Adding sample users"
-	testing = User('testing','test123')
-	admin = User('root','password')
+	testing = User('testing','testing@redbrick.dcu.ie','test123')
+	admin = User('root','root@redbrick.dcu.ie','password')
 	session.add(testing)
 	session.add(admin)
 	session.commit()

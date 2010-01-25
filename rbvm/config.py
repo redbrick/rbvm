@@ -27,6 +27,9 @@ ENVIRONMENT = 'production'
 
 SESSION_TIMEOUT = 3600
 
+EMAIL_ADDRESS = 'Redbrick Admins <admins@redbrick.dcu.ie>'
+SITE_ADDRESS = 'http://localhost:8080/'
+
 # Tools
 TOOL_QEMU_IMG = '/usr/bin/qemu-img'
 TOOL_KVM = '/usr/bin/kvm'

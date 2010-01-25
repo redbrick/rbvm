@@ -24,18 +24,23 @@ class User(Base):
 	username = Column(String(255),unique=True,nullable=False)
 	salt = Column(String(10),nullable=False)
 	password = Column(String(255),nullable=False)
+	email_address = Column(String(255),nullable=False)
 	
 	def __repr__(self):
 		return "<User('%s')>" % (self.username)
 	
-	def __init__(self,username,password_plain):
+	def __init__(self,username,email_address,password_plain=None):
 		self.username = username
+		
+		if not password_plain:
+			password_plain = "".join(random.sample(string.letters + string.digits,8))
 		
 		salt = ''.join(random.Random().sample(string.letters + string.digits,9))
 		hash = hashlib.sha256()
 		hash.update(password_plain + salt)
 		self.password = hash.hexdigest()
 		self.salt = salt
+		self.email_address = email_address
 	
 	# }}}
 

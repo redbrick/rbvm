@@ -56,7 +56,7 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 		return
 	
 	print "Disk image created. Adding VM entry to database."
-
+	
 	vm_name = "VM created at %s" % (datetime.datetime.now().isoformat())
 	vm = VirtualMachine(vm_name, user)
 	session.add(vm)
@@ -68,5 +68,4 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 	session.add(prop_disk)
 	session.commit()
 	print "Complete"
-
 

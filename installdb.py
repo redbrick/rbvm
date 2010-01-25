@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import rbvm.setup
 from optparse import OptionParser
 import rbvm.config as config
