@@ -1,38 +1,115 @@
-# Rudimentary config file for rbvm. To be replaced with a proper cfg file
-# using that python config parser that I can't remember the name of.
+import os.path
+import ConfigParser
 
-DATABASE_URI = 'sqlite:////home/andrew/rbvm.db'
+config = ConfigParser.SafeConfigParser()
+config.read(['rbvm/rbvm.conf-dist', '/etc/rbvm.conf', os.path.expanduser('~/rbvm.conf')])
 
-BASE_DIR = '/home/andrew/rbvm'
-SESSION_DIR = BASE_DIR + '/sessions'
-STATIC_DIR = BASE_DIR + '/static'
-VIEW_DIR = BASE_DIR + '/views'
-LOG_DIR = BASE_DIR + '/logs'
+try:
+	DATABASE_URI = config.get('database','uri')
+except:
+	DATABASE_URI = 'sqlite:////home/andrew/rbvm.db'
 
-IMAGE_DIR = '/var/lib/rbvm/images'
+try:
+	BASE_DIR = config.get('web','basedir')
+except:
+	BASE_DIR = '/home/andrew/rbvm'
+
+try:
+	SESSION_DIR = config.get('web','sessiondir')
+except:
+	SESSION_DIR = BASE_DIR + '/sessions'
+
+try:
+	STATIC_DIR = config.get('web','staticdir')
+except:
+	STATIC_DIR = BASE_DIR + '/static'
+
+try:
+	VIEW_DIR = config.get('web','viewdir')
+except:
+	VIEW_DIR = BASE_DIR + '/views'
+
+try:
+	LOG_DIR = config.get('web','logdir')
+except:
+	LOG_DIR = BASE_DIR + '/logs'
+
+try:
+	IMAGE_DIR = config.get('vm','imagedir')
+except:
+	IMAGE_DIR = '/var/lib/rbvm/images'
 
 # Default sizes - all in MB unless otherwise specified
-DEFAULT_MEM = 128
-DEFAULT_IMAGE_SIZE = 4196
-DEFAULT_CPU_CORES = 1
+try:
+	DEFAULT_MEM = config.getint('vm','defaultram')
+except:
+	DEFAULT_MEM = 128
 
-ACCESS_LOG = 'access.log'
-ERROR_LOG = 'error.log'
+try:
+	DEFAULT_IMAGE_SIZE = config.getint('vm','defaultimagesize')
+except:
+	DEFAULT_IMAGE_SIZE = 4196
 
-HTTP_BIND_ADDRESS = '136.206.15.5'
-HTTP_PORT = 8080
+try:
+	DEFAULT_CPU_CORES = config.getint('vm','defaultcores')
+except:
+	DEFAULT_CPU_CORES = 1
 
-MGRD_DOMAIN_SOCK = '/var/lib/rbvm/mgrsock'
+try:
+	ACCESS_LOG = config.get('web','accesslog')
+except:
+	ACCESS_LOG = 'access.log'
 
-SHOW_TRACEBACKS = True
-LOG_TO_SCREEN = True
-ENVIRONMENT = 'production'
+try:
+	ERROR_LOG = config.get('web','errorlog')
+except:
+	ERROR_LOG = 'error.log'
 
-SESSION_TIMEOUT = 3600
+try:
+	HTTP_BIND_ADDRESS = config.get('web','bindaddress')
+except:
+	HTTP_BIND_ADDRESS = '136.206.15.5'
 
-EMAIL_ADDRESS = 'Redbrick Admins <admins@redbrick.dcu.ie>'
-SITE_ADDRESS = 'http://localhost:8080/'
+try:
+	HTTP_PORT = config.getint('web','port')
+except:
+	HTTP_PORT = 8080
+
+try:
+	SHOW_TRACEBACKS = config.getboolean('debug','showtracebacks')
+except:
+	SHOW_TRACEBACKS = True
+try:
+	LOG_TO_SCREEN = config.getboolean('debug','logtoscreen')
+except:
+	LOG_TO_SCREEN = True
+try:
+	ENVIRONMENT = config.getboolean('debug','cherrypyenvironment')
+except:
+	ENVIRONMENT = 'production'
+
+try:
+	SESSION_TIMEOUT = config.getint('web','sessiontimeout')
+except:
+	SESSION_TIMEOUT = 3600
+
+try:
+	EMAIL_ADDRESS = config.get('general','emailaddress')
+except:
+	EMAIL_ADDRESS = 'Redbrick Admins <admins@redbrick.dcu.ie>'
+
+try:
+	SITE_ADDRESS = config.get('general','siteaddress')
+except:
+	SITE_ADDRESS = 'http://localhost:8080/'
 
 # Tools
-TOOL_QEMU_IMG = '/usr/bin/qemu-img'
-TOOL_KVM = '/usr/bin/kvm'
+try:
+	TOOL_QEMU_IMG = config.get('tools','qemu-img')
+except:
+	TOOL_QEMU_IMG = '/usr/bin/qemu-img'
+
+try:
+	TOOL_KVM = config.get('tools','kvm')
+except:
+	TOOL_KVM = '/usr/bin/kvm'

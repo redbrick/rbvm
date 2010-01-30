@@ -1,0 +1,33 @@
+[general]
+emailaddress = Redbrick Admins <admins@redbrick.dcu.ie>
+siteaddress = http://localhost:800/
+
+[database]
+uri = sqlite:////home/andrew/rbvm.db
+
+[web]
+basedir = /home/andrew/rbvm
+sessiondir = /tmp/rbvm/sessions
+staticdir = /home/andrew/rbvm/static
+viewdir = /home/andrew/rbvm/views
+logdir = /tmp/rbvm/logs
+accesslog = access.log
+errorlog = error.log
+sessiontimeout = 3600
+bindaddress = 136.206.15.5
+port = 8080
+
+[vm]
+imagedir = /var/lib/rbvm/images
+defaultram = 128
+defaultimagesize = 4196
+defaultcores = 1
+
+[debug]
+showtracebacks = true
+logtoscreen = true
+cherrypyenvironment = production
+
+[tools]
+qemu-img = /usr/bin/qemu-img
+kvm = /usr/bin/kvm
