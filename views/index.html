@@ -13,12 +13,20 @@
 			<table>
 				<tr>
 					<th>VM Name</th>
-					<th>Status</th>
 					<th>Disk Images</th>
 					<th>RAM</th>
 					<th>CPU Cores</th>
-					<th>Operations</th>
+					<th>Actions</th>
 				</tr>
+				<py:for each="vm in vm_list">
+					<tr>
+						<td>${vm['name']}</td>
+						<td><py:for each="image in vm['disk_images']">${image} </py:for></td>
+						<td>${vm['ram']}</td>
+						<td>${vm['cpu_cores']}</td>
+						<td><a href="/manage?id=${vm['id']}">Manage</a></td>
+					</tr>
+				</py:for>
 			</table>
 		</div>
 	

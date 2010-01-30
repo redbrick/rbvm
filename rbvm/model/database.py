@@ -9,7 +9,7 @@ from sqlalchemy import Integer,String,DateTime,Unicode,SmallInteger,Text,Binary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation,backref
 
-session = None # Initialised at runtime
+session = None # Initialised at runtime by single-threaded daemons (multi threaded daemons use sqlalchemy_tool)
 
 Base = declarative_base()
 
@@ -124,7 +124,11 @@ class VirtualMachine(Base):
 	id = Column(Integer,Sequence('virtual_machine_id_seq'),primary_key=True)
 	name = Column(String(255))
 	user_id = Column(ForeignKey('user_table.id'))
-	
+	console_pt = Column(String(255),nullable=True)
+	monitor_pt = Column(String(255),nullable=True)
+	pid = Column(Integer,nullable=True)
+	last_launch = Column(DateTime,nullable=True)
+
 	properties = relation('Property',order_by='Property.id',backref='virtual_machine')
 	
 	def __repr__(self):

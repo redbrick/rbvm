@@ -19,7 +19,7 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 		user = session.query(User).filter(User.username==vm_properties.username).one()
 		assert user is not None
 	except:
-		print "Could not find the user %s" % (username)
+		print "Could not find the user %s" % (vm_properties.username)
 		print "Cannot continue."
 		return
 	
@@ -33,6 +33,7 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 	try:
 		disk_image_size = int(vm_properties.disk)
 		ram_size = int(vm_properties.disk)
+		cpu_cores = int(vm_properties.cpucores)
 	except ValueError:
 		print "Invalid input supplied."
 		return
@@ -64,8 +65,10 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 	print "VM created, populating properties."
 	prop_mem = Property("ram",str(ram_size),vm)
 	prop_disk = Property("disk_image",image_name,vm)
+	prop_cpu = Property("cpu_cores",str(cpu_cores),vm)
 	session.add(prop_mem)
 	session.add(prop_disk)
+	session.add(prop_cpu)
 	session.commit()
 	print "Complete"
 

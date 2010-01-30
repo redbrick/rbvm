@@ -14,12 +14,15 @@ IMAGE_DIR = '/var/lib/rbvm/images'
 # Default sizes - all in MB unless otherwise specified
 DEFAULT_MEM = 128
 DEFAULT_IMAGE_SIZE = 4196
+DEFAULT_CPU_CORES = 1
 
 ACCESS_LOG = 'access.log'
 ERROR_LOG = 'error.log'
 
 HTTP_BIND_ADDRESS = '136.206.15.5'
 HTTP_PORT = 8080
+
+MGRD_DOMAIN_SOCK = '/var/lib/rbvm/mgrsock'
 
 SHOW_TRACEBACKS = True
 LOG_TO_SCREEN = True
