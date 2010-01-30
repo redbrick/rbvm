@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/" py:strip="">
+	<py:match path="head" once="true">
+		<head py:attrs="select('@*')">
+			<title py:with="title = list(select('title/text()'))">
+				<py:if test="title">${title} - </py:if>Redbrick VMs
+			</title>
+			<link href="/static/global.css" rel="stylesheet" type="text/css" />
+		</head>
+	</py:match>
+	<py:match path="body" once="true">
+		<body py:attrs="select('@*')">
+			<div class="login_info" py:if="user and error is None">[ Logged in as ${user.username}. <a href="/logout">Logout</a> ]</div>
+			<p class="error" py:if="error is not None">${error}</p>
+			<p class="navbar" py:if="user is not None">[ <a href="/">Home</a> ]</p>
+			${select('*|text()')}
+		</body>
+	</py:match>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
+	<xi:include href="base.html" />
+	<head>
+		<title>Dashboard</title>
+	</head>
+	<body>
+		<h1>Dashboard</h1>
+		
+
+		<div>
+			<h2>Virtual Machines</h2>
+			<table>
+				<tr>
+					<th>VM Name</th>
+					<th>Disk Images</th>
+					<th>RAM</th>
+					<th>CPU Cores</th>
+					<th>Actions</th>
+				</tr>
+				<py:for each="vm in vm_list">
+					<tr>
+						<td>${vm['name']}</td>
+						<td><py:for each="image in vm['disk_images']">${image} </py:for></td>
+						<td>${vm['ram']}</td>
+						<td>${vm['cpu_cores']}</td>
+						<td><a href="/manage?id=${vm['id']}">Manage</a></td>
+					</tr>
+				</py:for>
+			</table>
+		</div>
+	
+	</body>
+</html>
