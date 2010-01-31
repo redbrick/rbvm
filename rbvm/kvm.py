@@ -1,3 +1,5 @@
+# coding=utf-8
+import os
 import os.path
 import random
 import string
@@ -43,6 +45,7 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 	valid_name = False
 	image_name = None
 	full_path = None
+	
 	while not valid_name:
 		image_name = "disk_%s.img" % "".join(random.sample(string.hexdigits,20))
 		print "Trying image name %s" % image_name
@@ -72,3 +75,43 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 	session.commit()
 	print "Complete"
 
+def check_vm_status(vm_object):
+	"""
+	Checks whether or not a VM is running. This is achieved by checking the 
+	last PID and launch time information in the database match the 
+	information in /proc.
+	"""
+	assert vm_object is not None
+
+	known_pid = vm_object.pid
+	last_launch = vm_object.last_launch
+
+	if known_pid is None or last_launch is None:
+		return False # missing data, so it's probably not running
+	
+	cmd_path = '/proc/' + known_pid + '/cmdline'
+	
+	if not os.path.exists(cmd_path):
+		return False # can't find proc info, VM not running
+	
+	timestamp = os.stat(cmd_path)[9] # ctime
+	ts_min = timestamp - 10
+	ts_max = timestamp + 10
+	
+	dt_min = datetime.datetime.fromtimestamp(ts_min)
+	dt_max = datetime.datetime.fromtimestamp(ts_max)
+	
+	if last_launch < dt_min or last_launch > dt_max:
+		return False # the process is the wrong age, not the VM
+	
+	f = open(cmd_path, 'r')
+	cmdline = f.read(8192)
+	f.close()
+	cmds = cmdline.split("\x00")
+	if cmds[0] != config.TOOL_KVM:
+		return False # it's not KVM :( return false
+	else:
+		return True # all checks pass, the vm seems to be running
+	
+	if not os.path.exists(cmd_path):
+		return False # can't find proc info, VM not running
