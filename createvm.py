@@ -3,7 +3,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from rbvm.model.database import *
-import rbvm.kvm
+import rbvm.vmmon
 import rbvm.config as config
 from optparse import OptionParser
 
@@ -23,6 +23,6 @@ if __name__ == '__main__':
 		Session = sessionmaker()
 		Session.configure(bind=engine)
 		session = Session()
-	
-		rbvm.kvm.create_vm(vm_properties,session,True)
+		
+		rbvm.vmmon.create_vm(vm_properties,session,True)
 

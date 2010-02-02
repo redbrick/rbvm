@@ -8,17 +8,20 @@ import datetime
 from rbvm.model.database import *
 import rbvm.lib.sqlalchemy_tool as database
 import rbvm.config as config
+
 # KVM abstraction layer
 
 def create_vm(vm_properties, session=database.session, print_output=False):
 	"""
 	Creates a virtual machine
 	"""
+	
 	if session is None:
 		raise "No database session present"
 	
+	user = session.query(User).filter(User.username==vm_properties.username).first()
+	
 	try:
-		user = session.query(User).filter(User.username==vm_properties.username).one()
 		assert user is not None
 	except:
 		print "Could not find the user %s" % (vm_properties.username)

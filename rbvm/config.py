@@ -113,3 +113,9 @@ try:
 	TOOL_KVM = config.get('tools','kvm')
 except:
 	TOOL_KVM = '/usr/bin/kvm'
+
+try:
+	VMMON = config.get('general','vmmon')
+except:
+	VMMON = 'kvm'
+
