@@ -6,6 +6,7 @@ import rbvm.lib.template as template
 from rbvm.lib.auth import get_user, require_login, require_nologin
 from rbvm.model.database import *
 import rbvm.config as config
+import rbvm.vmmon
 
 class Root:
 	@cherrypy.expose
@@ -17,7 +18,7 @@ class Root:
 		"""
 		user = get_user()
 		vms = database.session.query(VirtualMachine).filter(VirtualMachine.user_id==user.id).all()
-		print vms
+		
 		vm_list = []
 		for vm in vms:
 			vm_d = {'id':vm.id,'name':vm.name,'disk_images':[],'ram':None,'cpu_cores':None}
@@ -29,7 +30,7 @@ class Root:
 				elif property.key == 'cpu_cores':
 					vm_d['cpu_cores'] = property.value
 			vm_list.append(vm_d)
-				
+		
 		return template.render(vm_list=vm_list)
 	
 	@cherrypy.expose
@@ -51,6 +52,8 @@ class Root:
 		except:
 			return template.render(vm=None,error="Virtual machine was not found")
 		
+		vm.status = rbvm.vmmon.check_vm_status(vm)
+		
 		return template.render(vm=vm)
 	
 	@cherrypy.expose
@@ -64,7 +67,7 @@ class Root:
 			pwhash = hashlib.sha256()
 			pwhash.update(password + user_object.salt)
 			hash_hex = pwhash.hexdigest()
-			print "Checking password"
+			
 			if hash_hex == user_object.password:
 				cherrypy.session['authenticated'] = True
 				cherrypy.session['username'] = user_object.username

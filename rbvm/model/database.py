@@ -9,8 +9,6 @@ from sqlalchemy import Integer,String,DateTime,Unicode,SmallInteger,Text,Binary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation,backref
 
-import rbvm.kvm
-
 session = None # Initialised at runtime by single-threaded daemons (multi threaded daemons use sqlalchemy_tool)
 
 Base = declarative_base()
@@ -140,7 +138,5 @@ class VirtualMachine(Base):
 		self.name = name
 		self.user_id = user.id
 	
-	def status(self):
-		return rbvm.kvm.check_vm_status(self)
 	# }}}
 
