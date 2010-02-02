@@ -106,7 +106,7 @@ def check_vm_status(vm_object):
 	
 	if last_launch < dt_min or last_launch > dt_max:
 		return False # the process is the wrong age, not the VM
-	
+
 	f = open(cmd_path, 'r')
 	cmdline = f.read(8192)
 	f.close()
@@ -118,3 +118,9 @@ def check_vm_status(vm_object):
 	
 	if not os.path.exists(cmd_path):
 		return False # can't find proc info, VM not running
+
+def power_on(vm_object):
+	"""
+	Attempts to turn the power on 
+	"""
+	pass

@@ -2,10 +2,13 @@ import sqlalchemy
 import random
 import string
 import hashlib
+import os
+import base64
+import datetime
 
 from sqlalchemy import Table,Column,MetaData,ForeignKey
 from sqlalchemy.schema import Sequence
-from sqlalchemy import Integer,String,DateTime,Unicode,SmallInteger,Text,Binary
+from sqlalchemy import Integer,String,DateTime,Unicode,SmallInteger,Text,Binary,Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation,backref
 
@@ -140,3 +143,35 @@ class VirtualMachine(Base):
 	
 	# }}}
 
+class OneTimeToken(Base):
+	"""
+	A token that can be sent to the client (in unreadable form) and sent
+	back to verify a command's origin.
+	"""
+	# {{{
+	__tablename__ = 'one_time_token'
+	
+	id = Column(Integer,Sequence('one_time_token_id_seq'),primary_key=True)
+	token = Column(String(255),index=True)
+	timestamp = Column(DateTime)
+	used = Column(Boolean)
+	
+	def __repr__(self):
+		return "<OneTimeToken('%s')>" % (self.token)
+	
+	def __init__(self):
+		# Generate a random token
+		self.token = base64.b64encode(os.urandom(200))[:255]
+		self.timestamp = datetime.datetime.now()
+		self.used = False
+	
+	def check_and_expire(self):
+		seconds = 60 * 15
+		delta = datetime.timedelta(seconds=seconds)
+		
+		if self.used == False and self.timestamp + delta > datetime.datetime.now():
+			return False
+		
+		self.used = True
+		return True
+	# }}}
