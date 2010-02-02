@@ -1,9 +1,11 @@
 syntax: glob
 *.pyc
 *~
+._*
 *.log
 *.pid
 *.swp
 .DS_Store
+.AppleDouble
 *.orig
 session-*
