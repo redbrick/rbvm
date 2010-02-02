@@ -54,7 +54,11 @@ class Root:
 		
 		vm.status = rbvm.vmmon.check_vm_status(vm)
 		
-		return template.render(vm=vm)
+		token = OneTimeToken()
+		database.session.add(token)
+		database.session.commit()
+		
+		return template.render(vm=vm,token=token)
 	
 	@cherrypy.expose
 	@require_nologin
