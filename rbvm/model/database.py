@@ -166,6 +166,10 @@ class OneTimeToken(Base):
 		self.used = False
 	
 	def check_and_expire(self):
+		"""
+		Returns whether or not a token has been used before or is invalid,
+		and marks the token as used.
+		"""
 		seconds = 60 * 15
 		delta = datetime.timedelta(seconds=seconds)
 		
