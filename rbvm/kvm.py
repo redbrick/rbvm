@@ -123,4 +123,4 @@ def power_on(vm_object):
 	"""
 	Attempts to turn the power on 
 	"""
-	pass
+	return True

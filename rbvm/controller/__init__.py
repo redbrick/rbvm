@@ -61,6 +61,34 @@ class Root:
 		return template.render(vm=vm,token=token)
 	
 	@cherrypy.expose
+	@require_login
+	@template.output('poweron.html')
+	def poweron(self, id=None, token=None):
+		"""
+		Check the one time token and power on the VM
+		"""
+		if id is None or token is None:
+			return template.render(error="Missing ID or token",message="None")
+		
+		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
+		if token_object is None or token_object.check_and_expire() is True:
+			return template.render(error="Token error",message=None)
+		
+		try:
+			id = int(id)
+		except ValueError:
+			return template.render(error="Invalid ID",message=None)
+		
+		vm = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
+		if vm is None:
+			return template.render(error="Virtual machine not found",message=None)
+		
+		if rbvm.vmmon.power_on(vm):
+			return template.render(error=None,message="VM power on successful")
+		else:
+			return template.render(error=None,message="VM power on failed")
+	
+	@cherrypy.expose
 	@require_nologin
 	@template.output('login.html')
 	def login(self, username=None, password=None):
