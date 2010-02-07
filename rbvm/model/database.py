@@ -12,6 +12,8 @@ from sqlalchemy import Integer,String,DateTime,Unicode,SmallInteger,Text,Binary,
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation,backref
 
+import rbvm.lib.sqlalchemy_tool as database
+
 session = None # Initialised at runtime by single-threaded daemons (multi threaded daemons use sqlalchemy_tool)
 
 Base = declarative_base()
@@ -155,27 +157,46 @@ class OneTimeToken(Base):
 	token = Column(String(255),index=True)
 	timestamp = Column(DateTime)
 	used = Column(Boolean)
+	user_id = Column(ForeignKey('user_table.id'))
 	
 	def __repr__(self):
 		return "<OneTimeToken('%s')>" % (self.token)
 	
-	def __init__(self):
+	def __init__(self,user):
+		assert user is not None
+		
 		# Generate a random token
 		self.token = base64.b64encode(os.urandom(200))[:255]
 		self.timestamp = datetime.datetime.now()
 		self.used = False
+		self.user_id = user.id
 	
-	def check_and_expire(self):
+	def check_and_expire(self,user):
 		"""
 		Returns whether or not a token has been used before or is invalid,
 		and marks the token as used.
 		"""
+		#if session is None:
+		#	database.session.begin()
+		#else:
+		#	session.begin()
+		
 		seconds = 60 * 15
 		delta = datetime.timedelta(seconds=seconds)
 		
-		if self.used == False and self.timestamp + delta > datetime.datetime.now():
+		try:
+			assert user is not None
+			assert self.user_id == user.id
+			assert self.used == False and self.timestamp + delta > datetime.datetime.now()
+		except AssertionError:
 			return False
 		
 		self.used = True
+		
+		if session is None:
+			database.session.commit()
+		else:
+			session.commit()
+		
 		return True
 	# }}}

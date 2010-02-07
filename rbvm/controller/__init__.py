@@ -54,7 +54,7 @@ class Root:
 		
 		vm.status = rbvm.vmmon.check_vm_status(vm)
 		
-		token = OneTimeToken()
+		token = OneTimeToken(user)
 		database.session.add(token)
 		database.session.commit()
 		
@@ -70,8 +70,12 @@ class Root:
 		if id is None or token is None:
 			return template.render(error="Missing ID or token",vm=None,message="None")
 		
+		user = get_user()
+		if user is None:
+			return template.render(error="Invalid login",vm=None,message="None")
+		
 		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
-		if token_object is None or token_object.check_and_expire() is True:
+		if token_object is None or token_object.check_and_expire(user) is True:
 			return template.render(error="Token error",vm=None,message=None)
 		
 		try:
@@ -84,7 +88,7 @@ class Root:
 			return template.render(error="Virtual machine not found",vm=None,message=None)
 		
 		try:
-			user = get_user()
+			
 			assert vm.user_id == user.id
 		except:
 			return template.render(error=None,vm=vm,message="VM permissions error")
