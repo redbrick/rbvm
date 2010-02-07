@@ -176,10 +176,6 @@ class OneTimeToken(Base):
 		Returns whether or not a token has been used before or is invalid,
 		and marks the token as used.
 		"""
-		#if session is None:
-		#	database.session.begin()
-		#else:
-		#	session.begin()
 		
 		seconds = 60 * 15
 		delta = datetime.timedelta(seconds=seconds)
