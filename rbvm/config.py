@@ -35,6 +35,11 @@ except:
 	LOG_DIR = BASE_DIR + '/logs'
 
 try:
+	MODULE_DIR = config.get('general','moduledir')
+except:
+	MODULE_DIR = os.path.join(BASE_DIR, 'rbvm/modules')
+
+try:
 	IMAGE_DIR = config.get('vm','imagedir')
 except:
 	IMAGE_DIR = '/var/lib/rbvm/images'
@@ -118,4 +123,5 @@ try:
 	VMMON = config.get('general','vmmon')
 except:
 	VMMON = 'kvm'
+
 

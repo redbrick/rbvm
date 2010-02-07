@@ -68,19 +68,23 @@ class Root:
 		Check the one time token and power on the VM
 		"""
 		if id is None or token is None:
-			return template.render(error="Missing ID or token",vm=None,message="None")
+			print "a"
+			return template.render(error="Missing ID or token",vm=None,message=None)
 		
 		user = get_user()
 		if user is None:
-			return template.render(error="Invalid login",vm=None,message="None")
+			print "b"
+			return template.render(error="Invalid login",vm=None,message=None)
 		
 		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
 		if token_object is None or token_object.check_and_expire(user) is True:
+			print "c"
 			return template.render(error="Token error",vm=None,message=None)
 		
 		try:
 			id = int(id)
 		except ValueError:
+			print "d"
 			return template.render(error="Invalid ID",vm=None,message=None)
 		
 		vm = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
@@ -88,7 +92,6 @@ class Root:
 			return template.render(error="Virtual machine not found",vm=None,message=None)
 		
 		try:
-			
 			assert vm.user_id == user.id
 		except:
 			return template.render(error=None,vm=vm,message="VM permissions error")
