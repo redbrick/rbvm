@@ -68,25 +68,25 @@ class Root:
 		Check the one time token and power on the VM
 		"""
 		if id is None or token is None:
-			return template.render(error="Missing ID or token",message="None")
+			return template.render(error="Missing ID or token",vm=None,message="None")
 		
 		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
 		if token_object is None or token_object.check_and_expire() is True:
-			return template.render(error="Token error",message=None)
+			return template.render(error="Token error",vm=None,message=None)
 		
 		try:
 			id = int(id)
 		except ValueError:
-			return template.render(error="Invalid ID",message=None)
+			return template.render(error="Invalid ID",vm=None,message=None)
 		
 		vm = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
 		if vm is None:
-			return template.render(error="Virtual machine not found",message=None)
+			return template.render(error="Virtual machine not found",vm=None,message=None)
 		
 		if rbvm.vmmon.power_on(vm):
-			return template.render(error=None,message="VM power on successful")
+			return template.render(error=None,vm=vm,message="VM power on successful")
 		else:
-			return template.render(error=None,message="VM power on failed")
+			return template.render(error=None,vm=vm,message="VM power on failed")
 	
 	@cherrypy.expose
 	@require_nologin
