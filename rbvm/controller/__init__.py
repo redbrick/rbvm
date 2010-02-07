@@ -85,7 +85,7 @@ class Root:
 		
 		try:
 			user = get_user()
-			assert vm.user_id = user.id
+			assert vm.user_id == user.id
 		except:
 			return template.render(error=None,vm=vm,message="VM permissions error")
 		
