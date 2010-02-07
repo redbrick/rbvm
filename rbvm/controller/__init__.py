@@ -83,6 +83,12 @@ class Root:
 		if vm is None:
 			return template.render(error="Virtual machine not found",vm=None,message=None)
 		
+		try:
+			user = get_user()
+			assert vm.user_id = user.id
+		except:
+			return template.render(error=None,vm=vm,message="VM permissions error")
+		
 		if rbvm.vmmon.power_on(vm):
 			return template.render(error=None,vm=vm,message="VM power on successful")
 		else:
