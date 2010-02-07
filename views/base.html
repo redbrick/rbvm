@@ -13,7 +13,9 @@
 			<div class="login_info" py:if="user and error is None">[ Logged in as ${user.username}. <a href="/logout">Logout</a> ]</div>
 			<p class="error" py:if="error is not None">${error}</p>
 			<p class="navbar" py:if="user is not None">[ <a href="/">Home</a> ]</p>
-			${select('*|text()')}
+			<py:if test="error is None">
+				${select('*|text()')}
+			</py:if>
 		</body>
 	</py:match>
 </html>

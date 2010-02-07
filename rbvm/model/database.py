@@ -185,7 +185,7 @@ class OneTimeToken(Base):
 			assert self.user_id == user.id
 			assert self.used == False and self.timestamp + delta > datetime.datetime.now()
 		except AssertionError:
-			return False
+			return True
 		
 		self.used = True
 		
@@ -194,5 +194,5 @@ class OneTimeToken(Base):
 		else:
 			session.commit()
 		
-		return True
+		return False
 	# }}}

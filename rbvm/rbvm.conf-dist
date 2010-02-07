@@ -2,6 +2,7 @@
 emailaddress = Redbrick Admins <admins@redbrick.dcu.ie>
 siteaddress = http://localhost:8080/
 vmmon = kvm
+moduledir = /home/andrew/rbvm/rbvm/modules
 
 [database]
 uri = sqlite:////home/andrew/rbvm.db

@@ -7,6 +7,8 @@
 	<body>
 		<h1>VM Power On</h1>
 		<p py:if="message">${message}</p>
+		<py:if test="vm">
 		<p>Click <a href="/manage?id=${vm.id}">here</a> to return to the VM management screen.</p>
+		</py:if>
 	</body>
 </html>
