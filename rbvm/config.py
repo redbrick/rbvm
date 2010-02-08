@@ -124,4 +124,39 @@ try:
 except:
 	VMMON = 'kvm'
 
+try:
+	VNC_IP = config.get('vm','vncip')
+except:
+	VNC_IP = '127.0.0.1'
+
+try:
+	VNC_BASE_PORT = config.getint('vm','vncbaseport')
+except:
+	VNC_BASE_PORT = 5900
+
+try:
+	TOOL_SUDO = config.get('tools','sudo')
+except:
+	TOOL_SUDO = '/usr/bin/sudo'
+
+try:
+	TOOL_TUNCTL = config.get('tools','tunctl')
+except:
+	TOOL_TUNCTL = '/usr/sbin/tunctl'
+
+try:
+	TOOL_BRCTL = config.get('tools','brctl')
+except:
+	TOOL_BRCTL = '/usr/sbin/brctl'
+
+try:
+	SYSTEM_USERNAME = config.get('general','sysuser')
+except:
+	SYSTEM_USERNAME = 'andrew'
+
+try:
+	NETWORK_BRIDGE = config.get('vm','bridge')
+except:
+	NETWORK_BRIDGE = 'br0'
+
 
