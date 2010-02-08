@@ -77,6 +77,7 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 	session.add(prop_disk)
 	session.add(prop_cpu)
 	session.commit()
+	
 	print "Complete"
 
 def check_vm_status(vm_object):
@@ -119,6 +120,34 @@ def check_vm_status(vm_object):
 		return False # it's not KVM :( return false
 	else:
 		return True # all checks pass, the vm seems to be running
+
+def write_to_monitor(vm_object,data):
+	"""
+	Sends data to a VM's monitor.
+	"""
+	assert vm_object is not None
+	assert check_vm_status(vm_object) is True
+	
+	monitor_pt = vm_object.monitor_pt
+	
+	m_w = os.open(monitor_pt,os.O_WRONLY)
+	os.write(m_w,data)
+	os.close(m_w)
+
+def read_from_monitor(vm_object):
+	"""
+	Reads data from a VM's monitor.
+	"""
+	assert vm_object is not None
+	assert check_vm_status(vm_object) is True
+	
+	monitor_pt = vm_object.monitor_pt
+	
+	m_r = os.open(monitor_pt,os.O_RDONLY)
+	data = os.read(m_r,4096)
+	os.close(m_r)
+	
+	return data
 
 def power_on(vm_object):
 	"""
