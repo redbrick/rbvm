@@ -149,6 +149,34 @@ def read_from_monitor(vm_object):
 	
 	return data
 
+def write_to_serial(vm_object,data):
+	"""
+	Sends data to a VM's serial line.
+	"""
+	assert vm_object is not None
+	assert check_vm_status(vm_object) is True
+	
+	serial_pt = vm_object.console_pt
+	
+	m_w = os.open(serial_pt,os.O_WRONLY)
+	os.write(m_w,data)
+	os.close(m_w)
+
+def read_from_serial(vm_object):
+	"""
+	Reads data from a VM's serial line.
+	"""
+	assert vm_object is not None
+	assert check_vm_status(vm_object) is True
+	
+	serial_pt = vm_object.console_pt
+	
+	m_r = os.open(serial_pt,os.O_RDONLY)
+	data = os.read(m_r,4096)
+	os.close(m_r)
+	
+	return data
+
 def power_on(vm_object):
 	"""
 	Attempts to turn the power on 
