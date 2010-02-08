@@ -96,7 +96,11 @@ class Root:
 		except:
 			return template.render(error=None,vm=vm,message="VM permissions error",vnc_password=None,hostname=None,vnc_port=None)
 		
-		vnc_password = rbvm.vmmon.power_on(vm)
+		try:
+			vnc_password = rbvm.vmmon.power_on(vm)
+		except:
+			return template.render(error="Error starting VM",message=None,vm=vm,vnc_password=None,vnc_port=None,hostname=None)
+		
 		if vnc_password is not None:
 			return template.render(error=None,vm=vm,message="VM power on successful",vnc_password=vnc_password,hostname=config.VNC_IP,vnc_port=5900+vm.id)
 		else:

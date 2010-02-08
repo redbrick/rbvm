@@ -97,7 +97,6 @@ def check_vm_status(vm_object):
 	cmd_path = '/proc/' + str(known_pid) + '/cmdline'
 	
 	if not os.path.exists(cmd_path):
-		print cmd_path
 		return False # can't find proc info, VM not running
 	
 	timestamp = os.stat(cmd_path)[9] # ctime
@@ -108,7 +107,6 @@ def check_vm_status(vm_object):
 	dt_max = datetime.datetime.fromtimestamp(ts_max)
 	
 	if last_launch < dt_min or last_launch > dt_max:
-		print "b"
 		return False # the process is the wrong age, not the VM
 
 	f = open(cmd_path, 'r')
@@ -116,7 +114,6 @@ def check_vm_status(vm_object):
 	f.close()
 	cmds = cmdline.split("\x00")
 	if cmds[0] != config.TOOL_KVM:
-		print "c"
 		return False # it's not KVM :( return false
 	else:
 		return True # all checks pass, the vm seems to be running
@@ -269,9 +266,12 @@ def power_on(vm_object):
 	proc.stdout.close()
 	proc.stderr.close()
 	
+	monitor_pt = None
+	serial_pt = None
+	
 	# Try to find the names of the two pts
 	m = re.match(r'char device redirected to ([a-zA-Z0-9/]*)\nchar device redirected to ([a-zA-Z0-9/]*)', proc_errdata) # why does this come out via stderr? :/
-	
+
 	# First line is the monitor, second line is the serial console
 	monitor_pt = m.group(1)
 	serial_pt = m.group(2)
@@ -279,7 +279,7 @@ def power_on(vm_object):
 	m_r = os.open(monitor_pt,os.O_RDONLY)
 	m_w = os.open(monitor_pt,os.O_WRONLY)
 	data = os.read(m_r,4096)
-	#print "monitor device says:\n%s" % data
+	
 	assert data.startswith("QEMU ")
 	
 	os.write(m_w,"change vnc password\n")
