@@ -236,7 +236,7 @@ def power_on(vm_object):
 	assert smp_param is not None
 	assert mem_param is not None
 	assert vnc_param is not None
-	assert hd_param is not "" and hd_param is not None
+	assert hd_param != "" and hd_param is not None
 	
 	# Generate vnc password:
 	vnc_password = "".join(random.sample(string.letters + string.digits,8))
