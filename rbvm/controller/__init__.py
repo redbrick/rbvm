@@ -69,37 +69,38 @@ class Root:
 		"""
 		if id is None or token is None:
 			print "a"
-			return template.render(error="Missing ID or token",vm=None,message=None)
+			return template.render(error="Missing ID or token",vm=None,message=None,vnc_password=None,hostname=None,vnc_port=None)
 		
 		user = get_user()
 		if user is None:
 			print "b"
-			return template.render(error="Invalid login",vm=None,message=None)
+			return template.render(error="Invalid login",vm=None,message=None,vnc_password=None,hostname=None,vnc_port=None)
 		
 		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
 		if token_object is None or token_object.check_and_expire(user) is True:
 			print "c"
-			return template.render(error="Token error",vm=None,message=None)
+			return template.render(error="Token error",vm=None,message=None,vnc_password=None,hostname=None,vnc_port=None)
 		
 		try:
 			id = int(id)
 		except ValueError:
 			print "d"
-			return template.render(error="Invalid ID",vm=None,message=None)
+			return template.render(error="Invalid ID",vm=None,message=None,vnc_password=None,hostname=None,vnc_port=None)
 		
 		vm = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
 		if vm is None:
-			return template.render(error="Virtual machine not found",vm=None,message=None)
+			return template.render(error="Virtual machine not found",vm=None,message=None,vnc_password=None,hostname=None,vnc_port=None)
 		
 		try:
 			assert vm.user_id == user.id
 		except:
-			return template.render(error=None,vm=vm,message="VM permissions error")
+			return template.render(error=None,vm=vm,message="VM permissions error",vnc_password=None,hostname=None,vnc_port=None)
 		
-		if rbvm.vmmon.power_on(vm):
-			return template.render(error=None,vm=vm,message="VM power on successful")
+		vnc_password = rbvm.vmmon.power_on(vm)
+		if vnc_password is not None:
+			return template.render(error=None,vm=vm,message="VM power on successful",vnc_password=vnc_password,hostname=config.VNC_IP,vnc_port=5900+vm.id)
 		else:
-			return template.render(error=None,vm=vm,message="VM power on failed")
+			return template.render(error=None,vm=vm,message="VM power on failed",vnc_password=None,hostname=None,vnc_port=None)
 	
 	@cherrypy.expose
 	@require_nologin

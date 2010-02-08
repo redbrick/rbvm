@@ -3,6 +3,7 @@ emailaddress = Redbrick Admins <admins@redbrick.dcu.ie>
 siteaddress = http://localhost:8080/
 vmmon = kvm
 moduledir = /home/andrew/rbvm/rbvm/modules
+sysuser = andrew
 
 [database]
 uri = sqlite:////home/andrew/rbvm.db
@@ -24,6 +25,9 @@ imagedir = /var/lib/rbvm/images
 defaultram = 128
 defaultimagesize = 4196
 defaultcores = 1
+vncip = 127.0.0.1
+vncbaseport = 5900
+bridge = br0
 
 [debug]
 showtracebacks = true
@@ -32,4 +36,8 @@ cherrypyenvironment = production
 
 [tools]
 qemu-img = /usr/bin/qemu-img
-kvm = /usr/bin/kvm
+kvm = /usr/bin/qemu-kvm
+sudo = /usr/bin/sudo
+tunctl = /usr/sbin/tunctl
+brctl = /usr/sbin/brctl
+

@@ -1,6 +1,7 @@
 # coding=utf-8
 import os
 import os.path
+import re
 import random
 import string
 import subprocess
@@ -92,9 +93,10 @@ def check_vm_status(vm_object):
 	if known_pid is None or last_launch is None:
 		return False # missing data, so it's probably not running
 	
-	cmd_path = '/proc/' + known_pid + '/cmdline'
+	cmd_path = '/proc/' + str(known_pid) + '/cmdline'
 	
 	if not os.path.exists(cmd_path):
+		print cmd_path
 		return False # can't find proc info, VM not running
 	
 	timestamp = os.stat(cmd_path)[9] # ctime
@@ -105,6 +107,7 @@ def check_vm_status(vm_object):
 	dt_max = datetime.datetime.fromtimestamp(ts_max)
 	
 	if last_launch < dt_min or last_launch > dt_max:
+		print "b"
 		return False # the process is the wrong age, not the VM
 
 	f = open(cmd_path, 'r')
@@ -112,15 +115,131 @@ def check_vm_status(vm_object):
 	f.close()
 	cmds = cmdline.split("\x00")
 	if cmds[0] != config.TOOL_KVM:
+		print "c"
 		return False # it's not KVM :( return false
 	else:
 		return True # all checks pass, the vm seems to be running
-	
-	if not os.path.exists(cmd_path):
-		return False # can't find proc info, VM not running
 
 def power_on(vm_object):
 	"""
 	Attempts to turn the power on 
+	
+	Notes:
+	add the following to sudoers:
+	Defaults:username !requiretty
+	Cmnd_Alias RBVM = /sbin/ifconfig, /usr/sbin/brctl, /usr/sbin/tunctl
+	username ALL=NOPASSWD:RBVM
+	
+	add the following to /etc/qemu-ifup:
+	#!/bin/sh
+	sudo /sbin/ifconfig $1 0.0.0.0 promisc up
+	sudo /usr/sbin/brctl addif br0 $1
+	
+	Returns the vnc password if successful
 	"""
-	return True
+	# Collect options and build a kvm parameter list
+	# generate vnc password
+	# execute kvm as -daemonize, collect the pt names, save them.
+	# save pid, timestamp
+	
+	assert vm_object is not None
+	assert check_vm_status(vm_object) is False
+	
+	# Prepare parameters/settings
+	smp_param = None
+	mem_param = None
+	vnc_param = None
+	hd_param = None
+	disk_images = []
+	
+	for prop in vm_object.properties:
+		if prop.key == 'disk_image':
+			disk_images.append(os.path.join(config.IMAGE_DIR,prop.value))
+		
+		if prop.key == 'ram':
+			try:
+				mem_param = int(prop.value)
+			except ValueError:
+				pass
+		
+		if prop.key == 'cpu_cores':
+			try:
+				smp_param = int(prop.value)
+			except ValueError:
+				pass
+	
+	assert len(disk_images) > 0 and len(disk_images) < 27
+	alphabet = "abcdefghijklmnopqrstuvwxyz"
+	hd_param = ""
+	for i in range(0,len(disk_images)):
+		hd_param = hd_param + " -hd%c %s" % (alphabet[i],disk_images[i])
+	
+	vnc_param = "%s:%i,password" % (config.VNC_IP,vm_object.id)
+	
+	assert smp_param is not None
+	assert mem_param is not None
+	assert vnc_param is not None
+	assert hd_param is not "" and hd_param is not None
+	
+	# Generate vnc password:
+	vnc_password = "".join(random.sample(string.letters + string.digits,8))
+	
+	# Assign the tap interface
+	tap = "tap%i" % vm_object.id
+	tunctl_params = [config.TOOL_SUDO,config.TOOL_TUNCTL,'-u',config.SYSTEM_USERNAME,'-t',tap]
+	subprocess.call(tunctl_params)
+	
+	# Run brctl delif just to ensure that the tap isn't on the bridge before continuing
+	brctl_params = [config.TOOL_SUDO,config.TOOL_BRCTL,'delif',config.NETWORK_BRIDGE,tap]
+	subprocess.call(brctl_params) # we don't really care if this fails - in fact, we hope it will.
+	
+	# Run the vmm
+	kvm_params = "-net nic -net tap,ifname=%s,script=/etc/qemu-ifup %s -smp %i -m %i -serial pty -monitor pty -vnc %s" % (tap,hd_param,smp_param, mem_param, vnc_param)
+	kvm_param_list = [config.TOOL_KVM] + kvm_params.split()
+	
+	proc = subprocess.Popen(kvm_param_list,close_fds=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+	pid = proc.pid
+	proc_outfd = proc.stdout.fileno()
+	proc_errfd = proc.stderr.fileno()
+	
+	proc_outdata = os.read(proc_outfd,512)
+	proc_errdata = os.read(proc_errfd,512)
+	proc_errdata = proc_errdata + os.read(proc_errfd,512) # read two lines
+	
+	#print "stdout:\n%s" % proc_outdata
+	#print "stderr:\n%s" % proc_errdata
+	
+	proc.stdout.close()
+	proc.stderr.close()
+	
+	# Try to find the names of the two pts
+	m = re.match(r'char device redirected to ([a-zA-Z0-9/]*)\nchar device redirected to ([a-zA-Z0-9/]*)', proc_errdata) # why does this come out via stderr? :/
+	
+	# First line is the monitor, second line is the serial console
+	monitor_pt = m.group(1)
+	serial_pt = m.group(2)
+	
+	m_r = os.open(monitor_pt,os.O_RDONLY)
+	m_w = os.open(monitor_pt,os.O_WRONLY)
+	data = os.read(m_r,4096)
+	#print "monitor device says:\n%s" % data
+	assert data.startswith("QEMU ")
+	
+	os.write(m_w,"change vnc password\n")
+	os.read(m_r,4096)
+	os.write(m_w,vnc_password + "\n")
+	
+	os.close(m_w)
+	os.close(m_r)
+	
+	vm_object.console_pt = serial_pt
+	vm_object.monitor_pt = monitor_pt
+	vm_object.last_launch = datetime.datetime.now()
+	vm_object.pid = pid
+	
+	try:
+		session.commit()
+	except:
+		database.session.commit()
+	
+	return vnc_password
