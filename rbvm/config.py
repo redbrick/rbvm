@@ -44,6 +44,11 @@ try:
 except:
 	IMAGE_DIR = '/var/lib/rbvm/images'
 
+try:
+	ISO_DIR = config.get('vm','isodir')
+except:
+	ISO_DIR = '/var/lib/rbvm/iso'
+
 # Default sizes - all in MB unless otherwise specified
 try:
 	DEFAULT_MEM = config.getint('vm','defaultram')

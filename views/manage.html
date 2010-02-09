@@ -30,6 +30,7 @@
 			<h3>Actions</h3>
 			<py:if test="vm.status">
 				<form action="/poweroff" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Power Off VM" /></form>
+				<form action="/mountiso" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Insert Virtual CDROM" /></form>
 			</py:if>
 			<py:if test="not vm.status">
 				<form action="/poweron" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Power On VM" /></form>
