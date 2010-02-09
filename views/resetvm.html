@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
+	<xi:include href="base.html" />
+	<head>
+		<title>Reset VM</title>
+	</head>
+	<body>
+		<h1>Reset VM</h1>
+		<p py:if="error is None and vm is not None">The virtual machine has been reset. Click <a href="/manage?id=${vm.id}">here</a> to return to the VM management screen.</p>
+	</body>
+</html>
