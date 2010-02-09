@@ -68,23 +68,19 @@ class Root:
 		Check the one time token and power on the VM
 		"""
 		if id is None or token is None:
-			print "a"
 			return template.render(error="Missing ID or token",vm=None,message=None,vnc_password=None,hostname=None,vnc_port=None)
 		
 		user = get_user()
 		if user is None:
-			print "b"
 			return template.render(error="Invalid login",vm=None,message=None,vnc_password=None,hostname=None,vnc_port=None)
 		
 		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
 		if token_object is None or token_object.check_and_expire(user) is True:
-			print "c"
 			return template.render(error="Token error",vm=None,message=None,vnc_password=None,hostname=None,vnc_port=None)
 		
 		try:
 			id = int(id)
 		except ValueError:
-			print "d"
 			return template.render(error="Invalid ID",vm=None,message=None,vnc_password=None,hostname=None,vnc_port=None)
 		
 		vm = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
@@ -105,6 +101,98 @@ class Root:
 			return template.render(error=None,vm=vm,message="VM power on successful",vnc_password=vnc_password,hostname=config.VNC_IP,vnc_port=5900+vm.id)
 		else:
 			return template.render(error=None,vm=vm,message="VM power on failed",vnc_password=None,hostname=None,vnc_port=None)
+	
+	@cherrypy.expose
+	@require_login
+	@template.output('mountiso.html')
+	def mountiso(self,id=None,token=None):
+		"""
+		Display a screen that allows a user to mount an ISO image to the
+		VM's cdrom drive.
+		"""
+		if id is None or token is None:
+			return template.render(error="Missing ID or token",vm=None,iso_list=None)
+		
+		user = get_user()
+		if user is None:
+			return template.render(error="Invalid login",vm=None,iso_list=None)
+		
+		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
+		if token_object is None or token_object.check_and_expire(user) is True:
+			return template.render(error="Token error",vm=None,iso_list=None)
+		
+		try:
+			id = int(id)
+		except ValueError:
+			return template.render(error="Invalid ID",vm=None,iso_list=None)
+		
+		vm = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
+		if vm is None:
+			return template.render(error="Virtual machine not found",vm=None,iso_list=None)
+		
+		try:
+			assert vm.user_id == user.id
+		except:
+			return template.render(error="VM permissions error",vm=vm,iso_list=None)
+		
+		iso_list = []
+		for f in os.listdir(os.path.abspath(config.ISO_DIR)):
+			module_name, ext = os.path.splitext(f)
+			if ext == '.iso':
+				iso_list.append(f)
+		
+		new_token = OneTimeToken(user)
+		database.session.add(new_token)
+		database.session.commit()
+		return template.render(error=None,vm=vm,iso_list=iso_list,iso_name=None,token=new_token)
+	
+	@cherrypy.expose
+	@require_login
+	@template.output('domountiso.html')
+	def domountiso(self,id=None,token=None,iso=None):
+		"""
+		Check that iso is a valid ISO, and mount it on the virtual machine.
+		"""
+		if id is None or token is None:
+			return template.render(error="Missing ID or token",vm=None,iso_list=None)
+		
+		user = get_user()
+		if user is None:
+			return template.render(error="Invalid login",vm=None,iso_list=None)
+		
+		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
+		if token_object is None or token_object.check_and_expire(user) is True:
+			return template.render(error="Token error",vm=None,iso_list=None)
+		
+		try:
+			id = int(id)
+		except ValueError:
+			return template.render(error="Invalid ID",vm=None,iso_list=None)
+		
+		vm = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
+		if vm is None:
+			return template.render(error="Virtual machine not found",vm=None,iso_list=None)
+		
+		try:
+			assert vm.user_id == user.id
+		except:
+			return template.render(error="VM permissions error",vm=vm)
+		
+		iso_list = []
+		for f in os.listdir(os.path.abspath(config.ISO_DIR)):
+			module_name, ext = os.path.splitext(f)
+			if ext == '.iso':
+				iso_list.append(f)
+		
+		if iso is None or iso not in iso_list:
+			return template.render(error="Invalid ISO",vm=vm)
+		
+		try:
+			rbvm.vmmon.mount_iso(vm,iso)
+		except:
+			return template.render(error="Error mounting ISO",vm=vm)
+		
+		return template.render(error=None,vm=vm)
 	
 	@cherrypy.expose
 	@require_nologin

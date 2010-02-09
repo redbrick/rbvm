@@ -22,6 +22,7 @@ port = 8080
 
 [vm]
 imagedir = /var/lib/rbvm/images
+isodir = /var/lib/rbvm/iso
 defaultram = 128
 defaultimagesize = 4196
 defaultcores = 1

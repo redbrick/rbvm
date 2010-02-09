@@ -174,6 +174,25 @@ def read_from_serial(vm_object):
 	
 	return data
 
+def mount_iso(vm_object, iso_name):
+	"""
+	Verify that a VM is powered on, and mount an ISO
+	"""
+	assert vm_object is not None
+	assert iso_name is not None
+	assert check_vm_status(vm_object) is True
+	
+	iso_list = []
+	for f in os.listdir(os.path.abspath(config.ISO_DIR)):
+		module_name, ext = os.path.splitext(f)
+		if ext == '.iso':
+			iso_list.append(f)
+	assert iso_name in iso_list
+	
+	iso_full_path = os.path.join(config.ISO_DIR,iso_name)
+	monitor_cmd = "change ide1-cd0 " + iso_full_path + "\n"
+	write_to_monitor(vm_object,monitor_cmd)
+
 def power_on(vm_object):
 	"""
 	Attempts to turn the power on 
@@ -251,20 +270,16 @@ def power_on(vm_object):
 	kvm_params = "-net nic -net tap,ifname=%s,script=/etc/qemu-ifup %s -smp %i -m %i -serial pty -monitor pty -vnc %s" % (tap,hd_param,smp_param, mem_param, vnc_param)
 	kvm_param_list = [config.TOOL_KVM] + kvm_params.split()
 	
-	proc = subprocess.Popen(kvm_param_list,close_fds=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+	proc = subprocess.Popen(kvm_param_list,close_fds=True,stderr=subprocess.PIPE)
 	pid = proc.pid
-	proc_outfd = proc.stdout.fileno()
 	proc_errfd = proc.stderr.fileno()
 	
-	proc_outdata = os.read(proc_outfd,512)
 	proc_errdata = os.read(proc_errfd,512)
 	proc_errdata = proc_errdata + os.read(proc_errfd,512) # read two lines
 	
 	#print "stdout:\n%s" % proc_outdata
 	#print "stderr:\n%s" % proc_errdata
-	
-	proc.stdout.close()
-	proc.stderr.close()
+	#proc.stderr.close()
 	
 	monitor_pt = None
 	serial_pt = None
