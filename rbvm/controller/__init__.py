@@ -235,6 +235,46 @@ class Root:
 		return template.render(error=None,vm=vm)
 	
 	@cherrypy.expose
+	@require_login
+	@template.output('poweroff.html')
+	def poweroff(self,token=None,id=None):
+		"""
+		Powers off a virtual machine
+		"""
+		if id is None or token is None:
+			return template.render(error="Missing ID or token",vm=None)
+
+		user = get_user()
+		if user is None:
+			return template.render(error="Invalid login",vm=None)
+
+		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
+		if token_object is None or token_object.check_and_expire(user) is True:
+			return template.render(error="Token error",vm=None)
+
+		try:
+			id = int(id)
+		except ValueError:
+			return template.render(error="Invalid ID",vm=None)
+
+		vm = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
+		if vm is None:
+			return template.render(error="Virtual machine not found",vm=None)
+
+		try:
+			assert vm.user_id == user.id
+		except:
+			return template.render(error="VM permissions error",vm=vm)
+
+		try:
+			rbvm.vmmon.power_off(vm)
+		except Exception, e:
+			print e.__repr__()
+			return template.render(error="Error powering off virtual machine",vm=vm)
+
+		return template.render(error=None,vm=vm)
+	
+	@cherrypy.expose
 	@require_nologin
 	@template.output('login.html')
 	def login(self, username=None, password=None):

@@ -29,6 +29,8 @@ defaultcores = 1
 vncip = 127.0.0.1
 vncbaseport = 5900
 bridge = br0
+ifupscript = /etc/qemu-ifup
+ifdownscript = /etc/qemu-ifdown
 
 [debug]
 showtracebacks = true
