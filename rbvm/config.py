@@ -164,4 +164,12 @@ try:
 except:
 	NETWORK_BRIDGE = 'br0'
 
+try:
+	IFUP_SCRIPT = config.get('vm','ifupscript')
+except:
+	IFUP_SCRIPT = '/etc/qemu-ifup'
 
+try:
+	IFDOWN_SCRIPT = config.get('vm','ifdownscript')
+except:
+	IFDOWN_SCRIPT = '/etc/qemu-ifdown'

@@ -1,0 +1,3 @@
+#!/bin/sh
+sudo /usr/sbin/brctl br0 delif $1
+sudo /usr/sbin/tunctl -d $1

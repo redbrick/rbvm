@@ -203,6 +203,17 @@ def reset_vm(vm_object):
 	monitor_cmd = "system_reset\n"
 	write_to_monitor(vm_object,monitor_cmd)
 
+def power_off(vm_object):
+	"""
+	Verify that a VM is powered on and power it off.
+	"""
+	
+	assert vm_object is not None
+	assert check_vm_status(vm_object) is True
+	
+	monitor_cmd = "quit\n"
+	write_to_monitor(vm_object,monitor_cmd)
+
 def power_on(vm_object):
 	"""
 	Attempts to turn the power on 
@@ -277,7 +288,7 @@ def power_on(vm_object):
 	subprocess.call(brctl_params) # we don't really care if this fails - in fact, we hope it will.
 	
 	# Run the vmm
-	kvm_params = "-net nic -net tap,ifname=%s,script=/etc/qemu-ifup %s -smp %i -m %i -serial pty -monitor pty -vnc %s" % (tap,hd_param,smp_param, mem_param, vnc_param)
+	kvm_params = "-net nic -net tap,ifname=%s,script=%s,downscript=%s %s -smp %i -m %i -serial pty -monitor pty -vnc %s" % (tap,config.IFUP_SCRIPT,config.IFDOWN_SCRIPT,hd_param,smp_param, mem_param, vnc_param)
 	kvm_param_list = [config.TOOL_KVM] + kvm_params.split()
 	
 	proc = subprocess.Popen(kvm_param_list,close_fds=True,stderr=subprocess.PIPE)
