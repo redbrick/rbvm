@@ -193,6 +193,16 @@ def mount_iso(vm_object, iso_name):
 	monitor_cmd = "change ide1-cd0 " + iso_full_path + "\n"
 	write_to_monitor(vm_object,monitor_cmd)
 
+def reset_vm(vm_object):
+	"""
+	Verify that a VM is powered on, and reset it
+	"""
+	assert vm_object is not None
+	assert check_vm_status(vm_object) is True
+	
+	monitor_cmd = "system_reset\n"
+	write_to_monitor(vm_object,monitor_cmd)
+
 def power_on(vm_object):
 	"""
 	Attempts to turn the power on 
