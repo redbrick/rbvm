@@ -10,7 +10,7 @@ _modules = {}
 sys.path.append(config.MODULE_DIR)
 for f in os.listdir(os.path.abspath(config.MODULE_DIR)):
 	module_name, ext = os.path.splitext(f)
-	if ext == '.py':
+	if ext == '.py' and not module_name.startswith('._'):
 		module = __import__(module_name, globals(), locals(), ['create_vm','check_vm_status','power_on','mount_iso','reset_vm','power_off'], -1)
 		_modules[module_name] = module
 
