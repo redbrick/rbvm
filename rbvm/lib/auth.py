@@ -1,6 +1,7 @@
 import cherrypy
 from rbvm.model.database import *
 import rbvm.lib.sqlalchemy_tool as database
+import rbvm.config as config
 
 def get_user():
 	"""
