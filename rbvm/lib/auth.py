@@ -22,7 +22,10 @@ def require_login(func):
 		if cherrypy.session.get('authenticated') == True:
 			return func(*args, **kwargs)
 		else:
-			raise cherrypy.HTTPRedirect('/login')
+			if config.PROXY_MODE:
+				raise cherrypy.HTTPRedirect(config.PROXY_BASE + 'login')
+			else:
+				raise cherrypy.HTTPRedirect('/login')
 	return wrapper
 
 def require_nologin(func):
