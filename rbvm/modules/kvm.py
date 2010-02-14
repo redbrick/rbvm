@@ -8,6 +8,7 @@ import subprocess
 import datetime
 from rbvm.model.database import *
 import rbvm.lib.sqlalchemy_tool as database
+import rbvm.lib.ptree as ptree
 import rbvm.config as config
 
 # KVM abstraction layer
@@ -288,23 +289,35 @@ def power_on(vm_object):
 	subprocess.call(brctl_params) # we don't really care if this fails - in fact, we hope it will.
 	
 	# Run the vmm
-	kvm_params = "-net nic -net tap,ifname=%s,script=%s,downscript=%s %s -smp %i -m %i -serial pty -monitor pty -vnc %s" % (tap,config.IFUP_SCRIPT,config.IFDOWN_SCRIPT,hd_param,smp_param, mem_param, vnc_param)
+	kvm_params = "-net nic -net tap,ifname=%s,script=%s,downscript=%s %s -smp %i -m %i -serial pty -monitor pty -vnc %s -daemonize" % (tap,config.IFUP_SCRIPT,config.IFDOWN_SCRIPT,hd_param,smp_param, mem_param, vnc_param)
 	kvm_param_list = [config.TOOL_KVM] + kvm_params.split()
 	
 	proc = subprocess.Popen(kvm_param_list,close_fds=True,stderr=subprocess.PIPE)
-	pid = proc.pid
-	proc_errfd = proc.stderr.fileno()
+	known_pid = proc.pid
+	proc_errdata = proc.stderr.read()
+	proc.stderr.close()
 	
-	proc_errdata = os.read(proc_errfd,512)
-	proc_errdata = proc_errdata + os.read(proc_errfd,512) # read two lines
+	pt = ptree.ProcessTree()
+	pid = None
+	for ptn in pt.proclist:
+		proc_hit = True
+		if len(ptn.cmdline) - 1 == len(kvm_param_list):
+			for i in range(0,len(kvm_param_list)):
+				if ptn.cmdline[i] != kvm_param_list[i]:
+					proc_hit = False
+		else:
+			proc_hit = False
+		
+		if proc_hit is True:
+			if ptn.pid != known_pid:
+				pid = ptn.pid
 	
-	#print "stdout:\n%s" % proc_outdata
-	#print "stderr:\n%s" % proc_errdata
-	#proc.stderr.close()
+	if pid is None:
+		raise "Could not find PID of child process"
 	
 	monitor_pt = None
 	serial_pt = None
-	
+		
 	# Try to find the names of the two pts
 	m = re.match(r'char device redirected to ([a-zA-Z0-9/]*)\nchar device redirected to ([a-zA-Z0-9/]*)', proc_errdata) # why does this come out via stderr? :/
 
