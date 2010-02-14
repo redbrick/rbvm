@@ -2,25 +2,23 @@
 emailaddress = Redbrick Admins <admins@redbrick.dcu.ie>
 siteaddress = http://localhost:8080/
 vmmon = kvm
-moduledir = /home/andrew/rbvm/rbvm/modules
+moduledir = /usr/lib/python2.6/rbvm/modules
 sysuser = andrew
 
 [database]
-uri = sqlite:////home/andrew/rbvm.db
+uri = sqlite:////var/lib/rbvm/rbvm.db
 
 [web]
-basedir = /home/andrew/rbvm
+basedir = /usr/lib/python2.6/rbvm
 sessiondir = /tmp/rbvm/sessions
-staticdir = /home/andrew/rbvm/static
-viewdir = /home/andrew/rbvm/views
-logdir = /tmp/rbvm/logs
+staticdir = /usr/lib/python2.6/rbvm/static
+viewdir = /usr/lib/python2.6/rbvm/views
+logdir = /var/log/rbvm
 accesslog = access.log
 errorlog = error.log
 sessiontimeout = 3600
 bindaddress = 136.206.15.5
 port = 8080
-proxymode = true
-proxybase = http://localhost:8080/
 
 [vm]
 imagedir = /var/lib/rbvm/images
@@ -45,4 +43,3 @@ kvm = /usr/bin/qemu-kvm
 sudo = /usr/bin/sudo
 tunctl = /usr/sbin/tunctl
 brctl = /usr/sbin/brctl
-

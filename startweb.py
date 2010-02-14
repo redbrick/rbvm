@@ -31,8 +31,6 @@ def env_init():
 			'tools.SATransaction.dburi':config.DATABASE_URI,
 			'tools.SATransaction.echo':False,
 			'tools.SATransaction.convert_unicode':True,
-			'tools.proxy.on':config.PROXY_MODE,
-			'tools.proxy.base':config.PROXY_BASE,
 		},
 		'/static': {
 			'tools.staticdir.on' : True,

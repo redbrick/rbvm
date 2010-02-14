@@ -174,13 +174,3 @@ try:
 except:
 	IFDOWN_SCRIPT = '/etc/qemu-ifdown'
 
-try:
-	PROXY_MODE = config.getboolean('web','proxymode')
-except:
-	PROXY_MODE = False
-
-try:
-	PROXY_BASE = config.get('web','proxybase')
-except:
-	PROXY_BASE = None
-
