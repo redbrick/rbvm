@@ -291,7 +291,7 @@ class Root:
 				cherrypy.session['username'] = user_object.username
 				if config.PROXY_MODE:
 					raise cherrypy.HTTPRedirect(config.PROXY_BASE)
-				except:
+				else:
 					raise cherrypy.HTTPRedirect('/')
 		
 		return template.render()
