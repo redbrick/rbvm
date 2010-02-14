@@ -3,7 +3,7 @@ import hashlib
 import cherrypy.lib.sessions
 import rbvm.lib.sqlalchemy_tool as database
 import rbvm.lib.template as template
-from rbvm.lib.auth import get_user, require_login, require_nologin
+from rbvm.lib.auth import get_user, require_login, require_nologin, verify_token
 from rbvm.model.database import *
 import rbvm.config as config
 import rbvm.vmmon
@@ -62,6 +62,7 @@ class Root:
 	
 	@cherrypy.expose
 	@require_login
+	@verify_token
 	@template.output('poweron.html')
 	def poweron(self, id=None, token=None):
 		"""
@@ -73,10 +74,6 @@ class Root:
 		user = get_user()
 		if user is None:
 			return template.render(error="Invalid login",vm=None,message=None,vnc_password=None,hostname=None,vnc_port=None)
-		
-		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
-		if token_object is None or token_object.check_and_expire(user) is True:
-			return template.render(error="Token error",vm=None,message=None,vnc_password=None,hostname=None,vnc_port=None)
 		
 		try:
 			id = int(id)
@@ -103,23 +100,28 @@ class Root:
 			return template.render(error=None,vm=vm,message="VM power on failed",vnc_password=None,hostname=None,vnc_port=None)
 	
 	@cherrypy.expose
+	@template.output('tokenerror.html')
+	def tokenerror(self):
+		"""
+		Display static token error page
+		"""
+		return template.render(error=None)
+	
+	@cherrypy.expose
 	@require_login
+	@verify_token
 	@template.output('mountiso.html')
 	def mountiso(self,id=None,token=None):
 		"""
 		Display a screen that allows a user to mount an ISO image to the
 		VM's cdrom drive.
 		"""
-		if id is None or token is None:
-			return template.render(error="Missing ID or token",vm=None,iso_list=None)
+		if id is None:
+			return template.render(error="Missing ID",vm=None,iso_list=None)
 		
 		user = get_user()
 		if user is None:
 			return template.render(error="Invalid login",vm=None,iso_list=None)
-		
-		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
-		if token_object is None or token_object.check_and_expire(user) is True:
-			return template.render(error="Token error",vm=None,iso_list=None)
 		
 		try:
 			id = int(id)
@@ -148,6 +150,7 @@ class Root:
 	
 	@cherrypy.expose
 	@require_login
+	@verify_token
 	@template.output('domountiso.html')
 	def domountiso(self,id=None,token=None,iso=None):
 		"""
@@ -159,10 +162,6 @@ class Root:
 		user = get_user()
 		if user is None:
 			return template.render(error="Invalid login",vm=None,iso_list=None)
-		
-		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
-		if token_object is None or token_object.check_and_expire(user) is True:
-			return template.render(error="Token error",vm=None,iso_list=None)
 		
 		try:
 			id = int(id)
@@ -196,6 +195,7 @@ class Root:
 	
 	@cherrypy.expose
 	@require_login
+	@verify_token
 	@template.output('resetvm.html')
 	def resetvm(self,token=None,id=None):
 		"""
@@ -207,10 +207,6 @@ class Root:
 		user = get_user()
 		if user is None:
 			return template.render(error="Invalid login",vm=None)
-		
-		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
-		if token_object is None or token_object.check_and_expire(user) is True:
-			return template.render(error="Token error",vm=None)
 		
 		try:
 			id = int(id)
@@ -236,6 +232,7 @@ class Root:
 	
 	@cherrypy.expose
 	@require_login
+	@verify_token
 	@template.output('poweroff.html')
 	def poweroff(self,token=None,id=None):
 		"""
@@ -247,11 +244,7 @@ class Root:
 		user = get_user()
 		if user is None:
 			return template.render(error="Invalid login",vm=None)
-
-		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==token).first()
-		if token_object is None or token_object.check_and_expire(user) is True:
-			return template.render(error="Token error",vm=None)
-
+		
 		try:
 			id = int(id)
 		except ValueError:

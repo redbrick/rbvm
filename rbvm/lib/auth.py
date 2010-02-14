@@ -23,10 +23,7 @@ def require_login(func):
 		if cherrypy.session.get('authenticated') == True:
 			return func(*args, **kwargs)
 		else:
-			if config.PROXY_MODE:
-				raise cherrypy.HTTPRedirect(config.PROXY_BASE + 'login')
-			else:
-				raise cherrypy.HTTPRedirect('/login')
+			raise cherrypy.HTTPRedirect(config.SITE_ADDRESS + 'login')
 	return wrapper
 
 def require_nologin(func):
@@ -36,12 +33,27 @@ def require_nologin(func):
 
 	def wrapper(*args, **kwargs):
 		if cherrypy.session.get('authenticated') == True:
-			if config.PROXY_MODE:
-				raise cherrypy.HTTPRedirect(config.PROXY_BASE)
-			else:
-				raise cherrypy.HTTPRedirect('/')
+			raise cherrypy.HTTPRedirect(config.SITE_ADDRESS)
 		else:
 			return func(*args,**kwargs)
+	return wrapper
+
+def verify_token(func):
+	"""
+	Verifies that the current action token is valid.
+	"""
+	def wrapper(*args, **kwargs):
+		user = get_user()
+		
+		if 'token' not in kwargs:
+			raise cherrypy.HTTPRedirect(config.SITE_ADDRESS + 'tokenerror')
+		
+		token_object = database.session.query(OneTimeToken).filter(OneTimeToken.token==kwargs['token']).first()
+		
+		if token_object is None or token_object.check_and_expire(user) is True:
+			raise cherrypy.HTTPRedirect(config.SITE_ADDRESS + 'tokenerror')
+		else:
+			return func(*args, **kwargs)
 	return wrapper
 
 def is_administrator():
