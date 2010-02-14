@@ -38,7 +38,7 @@ def require_nologin(func):
 		if cherrypy.session.get('authenticated') == True:
 			if config.PROXY_MODE:
 				raise cherrypy.HTTPRedirect(config.PROXY_BASE)
-			except:
+			else:
 				raise cherrypy.HTTPRedirect('/')
 		else:
 			return func(*args,**kwargs)
