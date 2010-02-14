@@ -19,6 +19,8 @@ errorlog = error.log
 sessiontimeout = 3600
 bindaddress = 136.206.15.5
 port = 8080
+proxymode = true
+proxybase = http://localhost:8080/
 
 [vm]
 imagedir = /var/lib/rbvm/images
