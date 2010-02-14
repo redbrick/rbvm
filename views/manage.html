@@ -15,7 +15,6 @@
 			
 			<h3>Status</h3>
 			<p><py:if test="vm.status">Powered On</py:if><py:if test="not vm.status">Powered Off</py:if></p>
-			${vm.status}
 			<h3>Properties</h3>
 			<table>
 				<py:for each="property in vm.properties">
