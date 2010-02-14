@@ -289,7 +289,10 @@ class Root:
 			if hash_hex == user_object.password:
 				cherrypy.session['authenticated'] = True
 				cherrypy.session['username'] = user_object.username
-				raise cherrypy.HTTPRedirect('/')
+				if config.PROXY_MODE:
+					raise cherrypy.HTTPRedirect(config.PROXY_BASE)
+				except:
+					raise cherrypy.HTTPRedirect('/')
 		
 		return template.render()
 	
