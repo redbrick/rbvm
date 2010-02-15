@@ -132,6 +132,8 @@ class VirtualMachine(Base):
 	console_pt = Column(String(255),nullable=True)
 	monitor_pt = Column(String(255),nullable=True)
 	pid = Column(Integer,nullable=True)
+	memory = Column(Integer)
+	cpu_cores = Column(Integer)
 	last_launch = Column(DateTime,nullable=True)
 
 	properties = relation('Property',order_by='Property.id',backref='virtual_machine')

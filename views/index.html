@@ -10,21 +10,19 @@
 
 		<div>
 			<h2>Virtual Machines</h2>
-			<table>
+			<table class="vm_list">
 				<tr>
 					<th>VM Name</th>
-					<th>Disk Images</th>
 					<th>RAM</th>
-					<th>CPU Cores</th>
 					<th>Actions</th>
 				</tr>
-				<py:for each="vm in vm_list">
+				<py:for each="vm in vms">
 					<tr>
-						<td>${vm['name']}</td>
-						<td><py:for each="image in vm['disk_images']">${image} </py:for></td>
-						<td>${vm['ram']}</td>
-						<td>${vm['cpu_cores']}</td>
-						<td><a href="/manage?id=${vm['id']}">Manage</a></td>
+						<td>${vm.name}</td>
+						<td>${vm.memory}MB</td>
+						<td>
+							<form action="/manage" method="GET"><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Manage" /></form>
+						</td>
 					</tr>
 				</py:for>
 			</table>

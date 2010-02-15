@@ -19,18 +19,6 @@ def populate():
 	session.add(users)
 	session.commit()
 
-	print "Adding sample users"
-	testing = User('testing','testing@redbrick.dcu.ie','test123')
-	admin = User('root','root@redbrick.dcu.ie','password')
-	session.add(testing)
-	session.add(admin)
-	session.commit()
-	
-	print "Setting groups"
-	admin.groups.append(admins)
-	admin.groups.append(users)
-	testing.groups.append(users)
-	session.commit()
 	
 if __name__ == '__main__':
 	populate()

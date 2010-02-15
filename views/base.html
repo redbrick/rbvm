@@ -10,12 +10,23 @@
 	</py:match>
 	<py:match path="body" once="true">
 		<body py:attrs="select('@*')">
-			<div class="login_info" py:if="user and error is None">[ Logged in as ${user.username}. <a href="/logout">Logout</a> ]</div>
-			<p class="error" py:if="error is not None">${error}</p>
-			<p class="navbar" py:if="user is not None">[ <a href="/">Home</a> ]</p>
-			<py:if test="error is None">
-				${select('*|text()')}
-			</py:if>
+			<div id="headarea">
+				<div id="headarea_inner">
+					<div id="headarea_right">
+						<py:if test="user is not None"><a href="/">Home</a> |</py:if>
+						<py:if test="user is not None and error is None">Logged in as ${user.username} | <a href="/logout">Logout</a></py:if>
+					</div>
+					<div id="headarea_left">
+						Redbrick VM System
+					</div>
+				</div>
+			</div>
+			<div id="content">		
+				<p class="error" py:if="error is not None">${error}</p>
+				<py:if test="error is None">
+					${select('*|text()')}
+				</py:if>
+			</div>
 		</body>
 	</py:match>
 </html>
