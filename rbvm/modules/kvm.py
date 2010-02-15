@@ -68,15 +68,13 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 	
 	vm_name = "VM created at %s" % (datetime.datetime.now().isoformat())
 	vm = VirtualMachine(vm_name, user)
+	vm.memory = ram_size
+	vm.cpu_cores = cpu_cores
 	session.add(vm)
 	session.commit()
-	print "VM created, populating properties."
-	prop_mem = Property("ram",str(ram_size),vm)
+	print "VM created, populating disk image list."
 	prop_disk = Property("disk_image",image_name,vm)
-	prop_cpu = Property("cpu_cores",str(cpu_cores),vm)
-	session.add(prop_mem)
 	session.add(prop_disk)
-	session.add(prop_cpu)
 	session.commit()
 	
 	print "Complete"
@@ -250,18 +248,6 @@ def power_on(vm_object):
 	for prop in vm_object.properties:
 		if prop.key == 'disk_image':
 			disk_images.append(os.path.join(config.IMAGE_DIR,prop.value))
-		
-		if prop.key == 'ram':
-			try:
-				mem_param = int(prop.value)
-			except ValueError:
-				pass
-		
-		if prop.key == 'cpu_cores':
-			try:
-				smp_param = int(prop.value)
-			except ValueError:
-				pass
 	
 	assert len(disk_images) > 0 and len(disk_images) < 27
 	alphabet = "abcdefghijklmnopqrstuvwxyz"
@@ -270,6 +256,9 @@ def power_on(vm_object):
 		hd_param = hd_param + " -hd%c %s" % (alphabet[i],disk_images[i])
 	
 	vnc_param = "%s:%i,password" % (config.VNC_IP,vm_object.id)
+	
+	smp_param = vm_object.cpu_cores
+	mem_param = vm_object.memory
 	
 	assert smp_param is not None
 	assert mem_param is not None

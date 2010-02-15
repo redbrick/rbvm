@@ -19,19 +19,7 @@ class Root:
 		user = get_user()
 		vms = database.session.query(VirtualMachine).filter(VirtualMachine.user_id==user.id).all()
 		
-		vm_list = []
-		for vm in vms:
-			vm_d = {'id':vm.id,'name':vm.name,'disk_images':[],'ram':None,'cpu_cores':None}
-			for property in list(vm.properties):
-				if property.key == 'ram':
-					vm_d['ram'] = property.value
-				elif property.key == 'disk_image':
-					vm_d['disk_images'].append(property.value)
-				elif property.key == 'cpu_cores':
-					vm_d['cpu_cores'] = property.value
-			vm_list.append(vm_d)
-		
-		return template.render(vm_list=vm_list)
+		return template.render(vms=vms)
 	
 	@cherrypy.expose
 	@require_login
@@ -282,10 +270,7 @@ class Root:
 			if hash_hex == user_object.password:
 				cherrypy.session['authenticated'] = True
 				cherrypy.session['username'] = user_object.username
-				if config.PROXY_MODE:
-					raise cherrypy.HTTPRedirect(config.PROXY_BASE)
-				else:
-					raise cherrypy.HTTPRedirect('/')
+				raise cherrypy.HTTPRedirect(config.SITE_ADDRESS)
 		
 		return template.render()
 	
