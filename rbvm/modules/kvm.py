@@ -30,16 +30,57 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 		print "Cannot continue."
 		return
 	
+	try:
+		if vm_properties.macaddress is not None:
+			assert re.match(r'^[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}$',vmproperties.macaddress) is not None
+			mac_address = vm_properties.macaddress
+		else:
+			raise Exception
+	except:
+		g = re.match(r'^([0-9a-fA-F]{2}):([0-9a-fA-F]{2}):([0-9a-fA-F]{2}).*',config.MAC_RANGE)
+		assert g is not None
+		a = int(g.group(1),16)
+		b = int(g.group(2),16)
+		c = int(g.group(3),16)
+		d = random.randint(0,255)
+		e = random.randint(0,255)
+		f = random.randint(0,255)
+		
+		mac_address = "%02X:%02X:%02X:%02X:%02X:%02X" % (a,b,c,d,e,f)
+	
+	if vm_properties.ip is not None:
+		
+		print "IP specified, checking previous allocations"
+		conflict = True
+		try:
+			other_vm = session.query(VirtualMachine).filter(VirtualMachine.assigned_ip==vm_properties.ip).first()
+			assert other_vm is not None
+		except Exception,e:
+			print str(e)
+			print "No conflict found"
+			conflict = False
+		if conflict is True:
+			print "***************************************************************************"
+			print " WARNING: IP allocation conflict! The IP requested is already allocated!"
+			print "***************************************************************************"
+			if vm_properties.force is False:
+				print "Aborting. Pleae specify -f or --force if you wish to continue anyway."
+				return
+			else:
+				print "Apparently you want to force this, continuing (even though it's stupid)."
+	
 	print "Creating virtual machine..."
 	print "VM Properties:"
 	print "RAM:\t\t%iMB" % vm_properties.mem
 	print "Disk size:\t%iMB" % vm_properties.disk
 	print "User:\t\t%s" % vm_properties.username
+	print "MAC addr:\t%s" % mac_address
+	print "IP address:\t%s" % str(vm_properties.ip)
 	print ""
 	
 	try:
 		disk_image_size = int(vm_properties.disk)
-		ram_size = int(vm_properties.disk)
+		ram_size = int(vm_properties.mem)
 		cpu_cores = int(vm_properties.cpucores)
 	except ValueError:
 		print "Invalid input supplied."
@@ -70,6 +111,8 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 	vm = VirtualMachine(vm_name, user)
 	vm.memory = ram_size
 	vm.cpu_cores = cpu_cores
+	vm.mac_address = mac_address
+	vm.assigned_ip = vm_properties.ip
 	session.add(vm)
 	session.commit()
 	print "VM created, populating disk image list."
@@ -259,11 +302,13 @@ def power_on(vm_object):
 	
 	smp_param = vm_object.cpu_cores
 	mem_param = vm_object.memory
+	mac_param = vm_object.mac_address
 	
 	assert smp_param is not None
 	assert mem_param is not None
 	assert vnc_param is not None
 	assert hd_param != "" and hd_param is not None
+	assert mac_param is not None
 	
 	# Generate vnc password:
 	vnc_password = "".join(random.sample(string.letters + string.digits,8))
@@ -278,7 +323,7 @@ def power_on(vm_object):
 	subprocess.call(brctl_params) # we don't really care if this fails - in fact, we hope it will.
 	
 	# Run the vmm
-	kvm_params = "-net nic -net tap,ifname=%s,script=%s,downscript=%s %s -smp %i -m %i -serial pty -monitor pty -vnc %s -daemonize" % (tap,config.IFUP_SCRIPT,config.IFDOWN_SCRIPT,hd_param,smp_param, mem_param, vnc_param)
+	kvm_params = "-net nic,macaddr=%s -net tap,ifname=%s,script=%s,downscript=%s %s -smp %i -m %i -serial pty -monitor pty -vnc %s -daemonize" % (mac_param,tap,config.IFUP_SCRIPT,config.IFDOWN_SCRIPT,hd_param,smp_param, mem_param, vnc_param)
 	kvm_param_list = [config.TOOL_KVM] + kvm_params.split()
 	
 	proc = subprocess.Popen(kvm_param_list,close_fds=True,stderr=subprocess.PIPE)
