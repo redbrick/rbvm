@@ -135,7 +135,9 @@ class VirtualMachine(Base):
 	memory = Column(Integer)
 	cpu_cores = Column(Integer)
 	last_launch = Column(DateTime,nullable=True)
-
+	assigned_ip = Column(String(255))
+	mac_address = Column(String(255))
+	
 	properties = relation('Property',order_by='Property.id',backref='virtual_machine')
 	
 	def __repr__(self):

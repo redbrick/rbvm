@@ -10,6 +10,7 @@
 			<table class="vm_info">
 				<tr><td class="head">VM Name</td><td>${vm.name}</td><td class="head">RAM</td><td>${vm.memory}MB</td></tr>
 				<tr><td class="head">Last Launch</td><td>${vm.last_launch}</td><td class="head">CPU Cores</td><td>${vm.cpu_cores}</td></tr>
+				<tr><td class="head">Primary MAC</td><td>${vm.mac_address}</td><td class="head">Primary IP</td><td>${str(vm.assigned_ip)}</td></tr>
 				<py:for each="property in vm.properties">
 					<tr><td class="head">Disk Image</td><td colspan="3">${property.value}</td></tr>
 				</py:for>

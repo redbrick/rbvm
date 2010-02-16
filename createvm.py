@@ -14,7 +14,10 @@ if __name__ == '__main__':
 	parser.add_option('-c','--cpucores',type="int",help="number of cpu cores",default=config.DEFAULT_CPU_CORES)
 	parser.add_option('-u','--username',help="this VM's user",default="root")
 	parser.add_option('-t','--test',action='store_true',default=False,help="test run, do nothing")
-
+	parser.add_option('-a','--macaddress',help='VM MAC address')
+	parser.add_option('-i','--ip',help='IP address')
+	parser.add_option('-f','--force',action='store_true',default=False,help='force on IP conflict')
+	
 	vm_properties, args = parser.parse_args()
 	
 	if not vm_properties.test:

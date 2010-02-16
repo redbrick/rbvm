@@ -1,5 +1,6 @@
 import os.path
 import ConfigParser
+import re
 
 config = ConfigParser.SafeConfigParser()
 config.read(['rbvm/rbvm.conf-dist', '/etc/rbvm.conf', os.path.expanduser('~/rbvm.conf')])
@@ -174,3 +175,8 @@ try:
 except:
 	IFDOWN_SCRIPT = '/etc/qemu-ifdown'
 
+try:
+	MAC_RANGE = config.get('vm','macrange')
+	assert re.match(r'^[0-9a-fA-F]{2}\:[0-9a-fA-F]{2}\:[0-9a-fA-F]{2}\:00\:00\:00$', MAC_RANGE) is not None
+except:
+	MAC_RANGE = 'aa:bb:cc:00:00:00'
