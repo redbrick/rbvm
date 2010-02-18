@@ -3,7 +3,7 @@ import ConfigParser
 import re
 
 config = ConfigParser.SafeConfigParser()
-config.read(['rbvm/rbvm.conf-dist', '/etc/rbvm.conf', os.path.expanduser('~/rbvm.conf')])
+config.read(['/etc/rbvm.conf-dist', '/etc/rbvm.conf', os.path.expanduser('~/rbvm.conf')])
 
 try:
 	DATABASE_URI = config.get('database','uri')
