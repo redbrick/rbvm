@@ -1,6 +1,2 @@
 usr/bin
 usr/sbin
-var/lib/rbvm
-var/lib/rbvm/iso
-var/lib/rbvm/images
-
