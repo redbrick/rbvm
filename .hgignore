@@ -10,3 +10,12 @@ syntax: glob
 *.orig
 session-*
 build
+dist
+debian/rbvm
+debian/files
+debian/pycompat
+debian/python-module-stampdir/rbvm
+debian/rbvm.postinst.debhelper
+debian/rbvm.prerm.debhelper
+debian/rbvm.substvars
+debian/rbvm.preinst.debhelper
