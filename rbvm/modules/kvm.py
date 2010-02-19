@@ -5,6 +5,7 @@ import re
 import random
 import string
 import subprocess
+import time
 import datetime
 from rbvm.model.database import *
 import rbvm.lib.sqlalchemy_tool as database
@@ -359,8 +360,20 @@ def power_on(vm_object):
 	monitor_pt = m.group(1)
 	serial_pt = m.group(2)
 	
-	m_r = os.open(monitor_pt,os.O_RDONLY)
-	m_w = os.open(monitor_pt,os.O_WRONLY)
+	m_r = None
+	m_w = None
+	for i in range(0, 10):
+		try:
+			if m_r is None:
+				m_r = os.open(monitor_pt, OS.O_RDONLY)
+			if m_w is None:
+				m_w = os.open(monitor_pt, OS.O_WRONLY)
+		except OSError:
+			time.sleep(1)
+	
+	assert m_r is not None
+	assert m_w is not None
+	
 	data = os.read(m_r,4096)
 	
 	assert data.startswith("QEMU ")
