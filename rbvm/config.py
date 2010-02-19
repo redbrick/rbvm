@@ -8,32 +8,32 @@ config.read(['/etc/rbvm.conf-dist', '/etc/rbvm.conf', os.path.expanduser('~/rbvm
 try:
 	DATABASE_URI = config.get('database','uri')
 except:
-	DATABASE_URI = 'sqlite:////home/andrew/rbvm.db'
+	DATABASE_URI = 'sqlite:////var/lib/rbvm/rbvm.db'
 
 try:
 	BASE_DIR = config.get('web','basedir')
 except:
-	BASE_DIR = '/home/andrew/rbvm'
+	BASE_DIR = '/usr/share/pyshared/rbvm'
 
 try:
 	SESSION_DIR = config.get('web','sessiondir')
 except:
-	SESSION_DIR = BASE_DIR + '/sessions'
+	SESSION_DIR = '/tmp/rbvm/sessions'
 
 try:
 	STATIC_DIR = config.get('web','staticdir')
 except:
-	STATIC_DIR = BASE_DIR + '/static'
+	STATIC_DIR = '/usr/share/rbvm/static'
 
 try:
 	VIEW_DIR = config.get('web','viewdir')
 except:
-	VIEW_DIR = BASE_DIR + '/views'
+	VIEW_DIR = '/usr/share/rbvm/views'
 
 try:
 	LOG_DIR = config.get('web','logdir')
 except:
-	LOG_DIR = BASE_DIR + '/logs'
+	LOG_DIR = '/var/log/rbvm'
 
 try:
 	MODULE_DIR = config.get('general','moduledir')
@@ -59,7 +59,7 @@ except:
 try:
 	DEFAULT_IMAGE_SIZE = config.getint('vm','defaultimagesize')
 except:
-	DEFAULT_IMAGE_SIZE = 4196
+	DEFAULT_IMAGE_SIZE = 8192
 
 try:
 	DEFAULT_CPU_CORES = config.getint('vm','defaultcores')
@@ -79,7 +79,7 @@ except:
 try:
 	HTTP_BIND_ADDRESS = config.get('web','bindaddress')
 except:
-	HTTP_BIND_ADDRESS = '136.206.15.5'
+	HTTP_BIND_ADDRESS = '127.0.0.1'
 
 try:
 	HTTP_PORT = config.getint('web','port')
@@ -89,11 +89,11 @@ except:
 try:
 	SHOW_TRACEBACKS = config.getboolean('debug','showtracebacks')
 except:
-	SHOW_TRACEBACKS = True
+	SHOW_TRACEBACKS = False
 try:
 	LOG_TO_SCREEN = config.getboolean('debug','logtoscreen')
 except:
-	LOG_TO_SCREEN = True
+	LOG_TO_SCREEN = False
 try:
 	ENVIRONMENT = config.getboolean('debug','cherrypyenvironment')
 except:
@@ -107,7 +107,7 @@ except:
 try:
 	EMAIL_ADDRESS = config.get('general','emailaddress')
 except:
-	EMAIL_ADDRESS = 'Redbrick Admins <admins@redbrick.dcu.ie>'
+	EMAIL_ADDRESS = 'Your Name <your.address@domain.org>'
 
 try:
 	SITE_ADDRESS = config.get('general','siteaddress')
@@ -123,7 +123,7 @@ except:
 try:
 	TOOL_KVM = config.get('tools','kvm')
 except:
-	TOOL_KVM = '/usr/bin/kvm'
+	TOOL_KVM = '/usr/bin/qemu-kvm'
 
 try:
 	VMMON = config.get('general','vmmon')
@@ -158,7 +158,12 @@ except:
 try:
 	SYSTEM_USERNAME = config.get('general','sysuser')
 except:
-	SYSTEM_USERNAME = 'andrew'
+	SYSTEM_USERNAME = 'rbvm'
+
+try:
+	SYSTEM_GROUP = config.get('general','sysgroup')
+except:
+	SYSTEM_GROUP = 'rbvm'
 
 try:
 	NETWORK_BRIDGE = config.get('vm','bridge')
@@ -168,12 +173,12 @@ except:
 try:
 	IFUP_SCRIPT = config.get('vm','ifupscript')
 except:
-	IFUP_SCRIPT = '/etc/qemu-ifup'
+	IFUP_SCRIPT = '/etc/rbvm-qemu-ifup'
 
 try:
 	IFDOWN_SCRIPT = config.get('vm','ifdownscript')
 except:
-	IFDOWN_SCRIPT = '/etc/qemu-ifdown'
+	IFDOWN_SCRIPT = '/etc/rbvm-qemu-ifdown'
 
 try:
 	MAC_RANGE = config.get('vm','macrange')
