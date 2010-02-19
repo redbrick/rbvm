@@ -5,11 +5,15 @@ import os.path
 import os
 import grp
 import pwd
-import rbvm.controller
 import sqlalchemy
+import signal
+import rbvm.controller
 import rbvm.lib.sqlalchemy_tool
 import rbvm.setup
 import rbvm.config as config
+
+def sig_handler(signum, frame):
+	cherrypy.log("Caught %s" % str(signum))
 
 def env_init():
 	"""
@@ -69,6 +73,9 @@ def standalone():
 			os.setreuid(new_uid,new_uid)
 	except:
 		raise "Refusing to run as root, and encountered an error while demoting self"
+	
+	# Set SIGHUP handler - upstart likes to abuse this
+	signal.signal(signal.SIGHUP, sig_handler)
 	
 	cp_version = string.split(cherrypy.__version__,'.')
 	env_init()

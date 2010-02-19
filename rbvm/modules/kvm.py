@@ -365,9 +365,9 @@ def power_on(vm_object):
 	for i in range(0, 10):
 		try:
 			if m_r is None:
-				m_r = os.open(monitor_pt, OS.O_RDONLY)
+				m_r = os.open(monitor_pt, os.O_RDONLY)
 			if m_w is None:
-				m_w = os.open(monitor_pt, OS.O_WRONLY)
+				m_w = os.open(monitor_pt, os.O_WRONLY)
 		except OSError:
 			time.sleep(1)
 	
