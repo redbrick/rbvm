@@ -43,7 +43,12 @@ setup(name = 'rbvm',
 			'views/poweroff.html',
 			'views/poweron.html',
 			'views/resetvm.html',
-			'views/tokenerror.html'
+			'views/tokenerror.html',
+			'views/prefs.html',
+			'views/changeemail.html',
+			'views/dochangeemail.html',
+			'views/changepassword.html',
+			'views/dochangepassword.html'
 		])
 	],
 	cmdclass = {'install':install},

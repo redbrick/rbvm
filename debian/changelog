@@ -1,3 +1,16 @@
+rbvm (0.0.56-2) stable; urgency=low
+
+  * Forgot to include new templates in packages.
+
+ -- Andrew Martin <werdz@redbrick.dcu.ie>  Wed, 24 Feb 2010 01:06:52 +0000
+
+rbvm (0.0.56-1) stable; urgency=low
+
+  * Added user preferences panel.
+  * Added some footer text.
+
+ -- Andrew Martin <werdz@redbrick.dcu.ie>  Wed, 24 Feb 2010 00:49:48 +0000
+
 rbvm (0.0.46-5) stable; urgency=low
 
   * Added SIGHUP trap.
