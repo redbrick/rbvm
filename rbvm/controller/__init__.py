@@ -97,6 +97,93 @@ class Root:
 	
 	@cherrypy.expose
 	@require_login
+	@template.output('prefs.html')
+	def prefs(self):
+		"""
+		Display user preferences
+		"""
+		user = get_user()
+		return template.render(user=user)
+	
+	@cherrypy.expose
+	@require_login
+	@template.output('changeemail.html')
+	def changeemail(self):
+		"""
+		Display email address change window
+		"""
+		user = get_user()
+		out_token = OneTimeToken(user)
+		database.session.add(out_token)
+		database.session.commit()
+		return template.render(user=user,token=out_token)
+	
+	@cherrypy.expose
+	@require_login
+	@verify_token
+	@template.output('dochangeemail.html')
+	def dochangeemail(self, email_a=None,email_b=None,token=None):
+		"""
+		Change a user's email address
+		"""
+		user = get_user()
+		if email_a != email_b or email_a is None:
+			return template.render(error="Email addresses must match.")
+		
+		user.email_address = email_a
+		database.session.commit()
+		return template.render(error=None)
+	
+	@cherrypy.expose
+	@require_login
+	@template.output('changepassword.html')
+	def changepassword(self):
+		"""
+		Display password change window
+		"""
+		user = get_user()
+		out_token = OneTimeToken(user)
+		database.session.add(out_token)
+		database.session.commit()
+		
+		return template.render(user=user,token=out_token)
+	
+	@cherrypy.expose
+	@require_login
+	@verify_token
+	@template.output('dochangeemail.html')
+	def dochangepassword(self, current_password=None,password_a=None,password_b=None,token=None):
+		"""
+		Change a user's email address
+		"""
+		user = get_user()
+		
+		# Verify old password
+		
+		if password_a != password_b or password_a is None or current_password is None:
+			return template.render(error="The current password provided must be correct, and the two new passwords entered must match.")
+		
+		pwhash = hashlib.sha256()
+		pwhash.update(current_password + user.salt)
+		hash_hex = pwhash.hexdigest()
+		
+		if hash_hex != user.password:
+			return template.render(error="The current password provided must be correct, and the two new passwords entered must match.")
+		
+		# Set new password
+		new_salt = ''.join(random.Random().sample(string.letters + string.digits,9))
+		new_hash = hashlib.sha256()
+		new_hash.update(password_a + new_salt)
+		new_hash_hex = new_hash.hexdigest()
+		
+		user.password = new_hash_hex
+		user.salt = new_salt
+		
+		database.session.commit()
+		return template.render(error=None)
+		
+	@cherrypy.expose
+	@require_login
 	@verify_token
 	@template.output('mountiso.html')
 	def mountiso(self,id=None,token=None):
