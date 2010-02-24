@@ -151,7 +151,7 @@ class Root:
 	@cherrypy.expose
 	@require_login
 	@verify_token
-	@template.output('dochangeemail.html')
+	@template.output('dochangepassword.html')
 	def dochangepassword(self, current_password=None,password_a=None,password_b=None,token=None):
 		"""
 		Change a user's email address
