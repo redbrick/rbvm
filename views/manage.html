@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
+	<xi:include href="base.html" />
+	<head>
+		<title>Manage VM</title>
+	</head>
+	<body>
+		<h1>Manage VM</h1>
+		<py:if test="vm">
+			<table class="vm_info">
+				<tr><td class="head">VM Name</td><td>${vm.name}</td><td class="head">RAM</td><td>${vm.memory}MB</td></tr>
+				<tr><td class="head">Last Launch</td><td>${vm.last_launch}</td><td class="head">CPU Cores</td><td>${vm.cpu_cores}</td></tr>
+				<tr><td class="head">Primary MAC</td><td>${vm.mac_address}</td><td class="head">Primary IP</td><td>${str(vm.assigned_ip)}</td></tr>
+				<py:for each="property in vm.properties">
+					<tr><td class="head">Disk Image</td><td colspan="3">${property.value}</td></tr>
+				</py:for>
+				<tr><td class="head">Status</td><td colspan="3"><py:if test="vm.status is True">Powered On</py:if><py:if test="vm.status is False">Powered Off</py:if></td></tr>
+			</table>
+			
+			<h3>Actions</h3>
+			<table class="vm_actions">
+				<tr>
+					<py:if test="vm.status is True">
+						<td>
+							<form action="/poweroff" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Power Off VM" /></form>
+						</td>
+						<td>
+							<form action="/resetvm" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Reset VM" /></form>
+						</td>
+						<td>
+							<form action="/mountiso" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Insert Virtual CDROM" /></form>
+						</td>
+					</py:if>
+					<py:if test="vm.status is False">
+						<td>
+							<form action="/poweron" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Power On VM" /></form>
+						</td>
+					</py:if>
+				</tr>
+			</table>
+		</py:if>
+	</body>
+</html>

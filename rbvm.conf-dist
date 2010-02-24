@@ -1,0 +1,54 @@
+# Redbrick VM management software (rbvm) dist config file
+
+# DO NOT PLACE YOUR CONFIGURATION CHANGES HERE. THIS FILE CONTAINS DEFAULTS
+# WHICH YOU MAY (probably should) OVERRIDE IN /etc/rbvm.conf!
+#
+# CHANGES MADE TO THIS FILE MAY BE LOST IF RBVM IS REMOVED OR UPGRADED!
+
+[general]
+emailaddress = Your Name <your.address@domain.org> 
+siteaddress = http://localhost:8080/
+vmmon = kvm
+moduledir = /usr/share/pyshared/rbvm/modules
+sysuser = rbvm 
+sysgroup = rbvm
+
+[database]
+uri = sqlite:////var/lib/rbvm/rbvm.db
+
+[web]
+basedir = /usr/share/pyshared/rbvm
+sessiondir = /tmp/rbvm/sessions
+staticdir = /usr/share/rbvm/static
+viewdir = /usr/share/rbvm/views
+logdir = /var/log/rbvm
+accesslog = access.log
+errorlog = error.log
+sessiontimeout = 3600
+bindaddress = 127.0.0.1 
+port = 8080
+
+[vm]
+imagedir = /var/lib/rbvm/images
+isodir = /var/lib/rbvm/iso
+defaultram = 128
+defaultimagesize = 8192 
+defaultcores = 1
+vncip = 127.0.0.1
+vncbaseport = 5900
+bridge = br0
+ifupscript = /etc/rbvm-qemu-ifup
+ifdownscript = /etc/rbvm-qemu-ifdown
+macrange = AA:BB:CC:00:00:00
+
+[debug]
+showtracebacks = false
+logtoscreen = false 
+cherrypyenvironment = production
+
+[tools]
+qemu-img = /usr/bin/qemu-img
+kvm = /usr/bin/qemu-kvm
+sudo = /usr/bin/sudo
+tunctl = /usr/sbin/tunctl
+brctl = /usr/sbin/brctl

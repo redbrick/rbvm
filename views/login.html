@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org">
+	<xi:include href="base.html" />
+	<head>
+		<title>Login</title>
+	</head>
+	<body>
+		<h1 class="login_header">Login</h1>
+		<div class="loginbox">
+			<form action="/login" method="POST">
+				<table>
+					<tr>
+						<td class="infobox" colspan="2">
+							
+							Please enter your Redbrick VM username and password below. This is a different account to your main Redbrick login; please ask an admin if you need an account.
+						</td>
+					</tr>
+					<tr>
+						<td class="head">Username</td>
+						<td><input class="text" type="text" name="username" /></td>
+					</tr>
+					<tr>
+						<td class="head">Password</td>
+						<td><input class="text" type="password" name="password" /></td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<input class="btn" type="submit" value="Log In" />
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/" py:strip="">
+	<py:match path="head" once="true">
+		<head py:attrs="select('@*')">
+			<title py:with="title = list(select('title/text()'))">
+				<py:if test="title">${title} - </py:if>Redbrick VMs
+			</title>
+			<link href="/static/global.css" rel="stylesheet" type="text/css" />
+		</head>
+	</py:match>
+	<py:match path="body" once="true">
+		<body py:attrs="select('@*')">
+			<div id="headarea">
+				<div id="headarea_inner">
+					<div id="headarea_right">
+						<py:if test="user is not None"><a href="/">Home</a> | Logged in as ${user.username} | <a href="/prefs">Preferences</a> | <a href="/logout">Logout</a></py:if>
+					</div>
+					<div id="headarea_left">
+						Redbrick VM System
+					</div>
+				</div>
+			</div>
+			<div id="content">		
+				<p class="error" py:if="error is not None">${error}</p>
+				<py:if test="error is None">
+					${select('*|text()')}
+				</py:if>
+			</div>
+			<div id="footer">
+				Redbrick VM Management System<py:if test="user is not None"> - Contact <a href="mailto:admins@redbrick.dcu.ie">admins@redbrick.dcu.ie</a> for help or bug reports</py:if> - Source available at <a href="http://hg.redbrick.dcu.ie/rbvm">http://hg.redbrick.dcu.ie/rbvm</a>.
+			</div>
+		</body>
+	</py:match>
+</html>

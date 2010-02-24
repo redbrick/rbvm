@@ -1,0 +1,97 @@
+#!/usr/bin/python2.6
+import cherrypy
+import string
+import os.path
+import os
+import grp
+import pwd
+import sqlalchemy
+import signal
+import rbvm.controller
+import rbvm.lib.sqlalchemy_tool
+import rbvm.setup
+import rbvm.config as config
+
+def sig_handler(signum, frame):
+	cherrypy.log("Caught %s" % str(signum))
+
+def env_init():
+	"""
+	Sets up the application environment
+	"""
+	# Create session dir and enforce perms if not already there
+	if os.path.exists(config.SESSION_DIR) and not os.path.isdir(config.SESSION_DIR):
+		raise "Cannot create session directory - file already exists in place"
+	elif not os.path.exists(config.SESSION_DIR):
+		os.makedirs(config.SESSION_DIR,0700)
+	else:
+		os.chmod(config.SESSION_DIR,0700)
+	
+	rbvm.setup.install(drop_all=False)
+
+	cherrypy.config.update({'environment': config.ENVIRONMENT,
+		'log.screen':config.LOG_TO_SCREEN,
+		'log.error_file': os.path.join(config.LOG_DIR, config.ERROR_LOG),
+		'log.access_file':os.path.join(config.LOG_DIR, config.ACCESS_LOG),
+		'show_tracebacks':config.SHOW_TRACEBACKS,
+		'server.socket_host':config.HTTP_BIND_ADDRESS,
+		'server.socket_port':config.HTTP_PORT})
+	
+	cherrypy.tree.mount(rbvm.controller.Root())
+	cherrypy.tree.apps[''].config = {
+		'/' : {
+			'tools.sessions.on':True,
+			'tools.sessions.storage_type':'file',
+			'tools.sessions.storage_path':config.SESSION_DIR,
+			'tools.sessions.timeout':config.SESSION_TIMEOUT,
+			'tools.encode.encoding':'utf-8',
+			'tools.SATransaction.on':True,
+			'tools.SATransaction.dburi':config.DATABASE_URI,
+			'tools.SATransaction.echo':False,
+			'tools.SATransaction.convert_unicode':True,
+		},
+		'/static': {
+			'tools.staticdir.on' : True,
+			'tools.staticdir.dir': config.STATIC_DIR
+		}
+	}
+
+
+def standalone():
+	"""
+	Run a standalone server
+	"""
+	# Don't run as root!
+	try:
+		if os.getgid() == 0:
+			new_gid = grp.getgrnam(config.SYSTEM_GROUP)[2]
+			os.setgroups([new_gid])
+			os.setregid(new_gid,new_gid)
+
+		if os.getuid() == 0:
+			new_uid = pwd.getpwnam(config.SYSTEM_USERNAME)[2]
+			os.setreuid(new_uid,new_uid)
+	except:
+		raise "Refusing to run as root, and encountered an error while demoting self"
+	
+	# Set SIGHUP handler - upstart likes to abuse this
+	signal.signal(signal.SIGHUP, sig_handler)
+	
+	cp_version = string.split(cherrypy.__version__,'.')
+	env_init()
+	if int(cp_version[1]) == 0:
+		#Use quickstart for cp 3.0.x
+		cherrypy.server.quickstart()
+		cherrypy.engine.start()
+	else:
+		cherrypy.server.start()
+		cherrypy.engine.block()
+
+def mod_python_server():
+	"""
+	Set up for running under mod_python
+	"""
+	env_init()
+
+if __name__ == '__main__':
+	standalone()

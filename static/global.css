@@ -1,0 +1,207 @@
+body {
+	background-color : #fff;
+	color : #000;
+	font-family : Arial,Helvetica,sans-serif;
+	margin : 0px;
+	font-size : 10pt;
+}
+
+div#headarea {
+	color : #fff;
+	font-family : Arial,Helvetica,sans-serif;
+	background-color : #c00;
+}
+
+div#headarea a {
+	color : #fff;
+	background-color : transparent;
+}
+
+div#headarea_inner {
+	padding : 5px;
+}
+
+div#headarea_left {
+	font-size : 16pt;
+	font-weight : bold;
+}
+
+div#headarea_right {
+	font-size : 10pt;
+	padding : 3px;
+	font-weight : normal;
+	float : right;
+}
+
+div#content {
+	width : 900px;
+	margin-left : auto;
+	margin-right : auto;
+	padding : 5px;
+}
+
+div#footer {
+	width : 900px;
+	margin-left : auto;
+	margin-right : auto;
+	padding : 5px;
+	font-size : 8pt;
+	color : #888;
+	background-color : transparent;
+	text-align : center;
+	padding-top : 20px;
+}
+
+div#footer a {
+	color : #888;
+	background-color : transparent;
+}
+
+p {
+	font-size : 10pt;
+}
+
+p.error { 
+	color : #c00;
+	background-color : #fff;
+	font-weight : bold;
+}
+
+td.vm_key {
+	border : solid 1px #000;
+	font-weight : bold;
+}
+
+td.vm_value {
+	border : solid 1px #000;
+}
+
+td.vm_help {
+	border : none;
+}
+
+div.login_info {
+	float : right;
+}
+
+div.login_info a {
+	color : #888;
+	background-color : #fff;
+}
+
+p.navbar a {
+	color : #888;
+	background-color : #fff;
+}
+
+table.vm_info {
+	width : 100%;
+	font-weight : normal;
+}
+
+table.vm_info td {
+	padding : 3px;
+	background-color : #fcc;
+	color : #000;
+}
+table.vm_info td.head {
+	font-weight : bold;
+	width : 100px;
+	background-color : #c00;
+	color : #fff;
+}
+
+table.vm_actions {
+	background-color : #fff;
+	color : #000;
+}
+
+table.vm_actions input {
+	border : solid 1px #000;
+	background-color : #c00;
+	color : #fff;
+}
+
+table.vm_list {
+	width : 100%;
+}
+
+table.vm_list th {
+	padding : 3px;
+	background-color : #c00;
+	color : #fff;
+}
+
+table.vm_list td {
+	padding : 3px;
+	background-color : #fcc;
+}
+
+table.vm_list input {
+	border : solid 1px #000;
+	background-color : #c00;
+	color : #fff;
+}
+
+h1.login_header {
+	text-align : center;
+}
+
+div.loginbox {
+	width : 300px;
+	margin-left : auto;
+	margin-right : auto;
+	
+}
+
+div.loginbox td.infobox {
+	padding-bottom : 10px;
+}
+
+div.loginbox td.head {
+	font-weight : bold;
+}
+
+div.loginbox input.text {
+	border : solid 1px #000;
+	background-color : #fff;
+	color : #000;
+}
+
+div.loginbox input.btn {
+	border : solid 1px #000;
+	background-color : #c00;
+	color : #fff;
+}
+
+table.formtable {
+	width : 800px;
+	margin-left : auto;
+	margin-right : auto;
+}
+
+table.formtable td {
+	padding : 10px;
+}
+
+table.formtable td input {
+	border : solid 1px #c00;
+	color : #000;
+	background-color : #fff;
+}
+
+table.formtable td.key {
+	width : 200px;
+	background-color : #eee;
+	color : #000;
+	font-weight : bold;
+}
+
+table.formtable td.actions {
+	text-align : right;
+}
+table.formtable td.actions input {
+	border : solid 1px #000;
+	background-color : #c00;
+	color : #fff;
+}
