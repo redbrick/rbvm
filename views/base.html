@@ -13,8 +13,7 @@
 			<div id="headarea">
 				<div id="headarea_inner">
 					<div id="headarea_right">
-						<py:if test="user is not None"><a href="/">Home</a> |</py:if>
-						<py:if test="user is not None and error is None">Logged in as ${user.username} | <a href="/logout">Logout</a></py:if>
+						<py:if test="user is not None"><a href="/">Home</a> | Logged in as ${user.username} | <a href="/prefs">Preferences</a> | <a href="/logout">Logout</a></py:if>
 					</div>
 					<div id="headarea_left">
 						Redbrick VM System
@@ -26,6 +25,9 @@
 				<py:if test="error is None">
 					${select('*|text()')}
 				</py:if>
+			</div>
+			<div id="footer">
+				Redbrick VM Management System<py:if test="user is not None"> - Contact <a href="mailto:admins@redbrick.dcu.ie">admins@redbrick.dcu.ie</a> for help or bug reports</py:if> - Source available at <a href="http://hg.redbrick.dcu.ie/rbvm">http://hg.redbrick.dcu.ie/rbvm</a>.
 			</div>
 		</body>
 	</py:match>

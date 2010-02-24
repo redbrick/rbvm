@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org">
+	<xi:include href="base.html" />
+	<head>
+		<title>Change Email</title>
+	</head>
+	<body>
+		<h1>Change Email</h1>
+		<py:if test="token is not None">
+			<form action="/dochangeemail" method="POST">
+				<input type="hidden" name="token" value="${token.token}" />
+				<table class="formtable">
+					<tr>
+						<td class="key">Current Email:</td><td colspan="2">${user.email_address}</td>
+					</tr>
+					<tr>
+						<td class="key">New email address</td><td colspan="2"><input type="text" name="email_a" /></td>
+					</tr>
+					<tr>
+						<td class="key">New email address (repeat)</td><td colspan="2"><input type="text" name="email_b" /></td>
+					</tr>
+					<tr>
+						<td colspan="3" class="actions" style="text-align : center"><input type="submit" value="Change Email Address" /></td>
+					</tr>
+				</table>
+			</form>
+		</py:if>
+	</body>
+</html>

@@ -40,6 +40,23 @@ div#content {
 	padding : 5px;
 }
 
+div#footer {
+	width : 900px;
+	margin-left : auto;
+	margin-right : auto;
+	padding : 5px;
+	font-size : 8pt;
+	color : #888;
+	background-color : transparent;
+	text-align : center;
+	padding-top : 20px;
+}
+
+div#footer a {
+	color : #888;
+	background-color : transparent;
+}
+
 p {
 	font-size : 10pt;
 }
@@ -152,6 +169,38 @@ div.loginbox input.text {
 }
 
 div.loginbox input.btn {
+	border : solid 1px #000;
+	background-color : #c00;
+	color : #fff;
+}
+
+table.formtable {
+	width : 800px;
+	margin-left : auto;
+	margin-right : auto;
+}
+
+table.formtable td {
+	padding : 10px;
+}
+
+table.formtable td input {
+	border : solid 1px #c00;
+	color : #000;
+	background-color : #fff;
+}
+
+table.formtable td.key {
+	width : 200px;
+	background-color : #eee;
+	color : #000;
+	font-weight : bold;
+}
+
+table.formtable td.actions {
+	text-align : right;
+}
+table.formtable td.actions input {
 	border : solid 1px #000;
 	background-color : #c00;
 	color : #fff;
