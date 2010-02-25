@@ -90,10 +90,17 @@ try:
 	SHOW_TRACEBACKS = config.getboolean('debug','showtracebacks')
 except:
 	SHOW_TRACEBACKS = False
+
+try:
+	DEBUG_MODE = config.getboolean('debug','debugmode')
+except:
+	DEBUG_MODE = False
+
 try:
 	LOG_TO_SCREEN = config.getboolean('debug','logtoscreen')
 except:
 	LOG_TO_SCREEN = False
+
 try:
 	ENVIRONMENT = config.getboolean('debug','cherrypyenvironment')
 except:

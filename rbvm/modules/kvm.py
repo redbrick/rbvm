@@ -7,6 +7,7 @@ import string
 import subprocess
 import time
 import datetime
+import cherrypy
 from rbvm.model.database import *
 import rbvm.lib.sqlalchemy_tool as database
 import rbvm.lib.ptree as ptree
@@ -327,10 +328,16 @@ def power_on(vm_object):
 	kvm_params = "-net nic,macaddr=%s -net tap,ifname=%s,script=%s,downscript=%s %s -smp %i -m %i -serial pty -monitor pty -vnc %s -daemonize" % (mac_param,tap,config.IFUP_SCRIPT,config.IFDOWN_SCRIPT,hd_param,smp_param, mem_param, vnc_param)
 	kvm_param_list = [config.TOOL_KVM] + kvm_params.split()
 	
+	if config.DEBUG_MODE is True:
+		cherrypy.log("DEBUG: kvm_param_list is: %s" % str(kvm_param_list))
+	
 	proc = subprocess.Popen(kvm_param_list,close_fds=True,stderr=subprocess.PIPE)
 	known_pid = proc.pid
 	proc_errdata = proc.stderr.read()
 	proc.stderr.close()
+	
+	if config.DEBUG_MODE is True:
+		cherrypy.log("DEBUG: proc_errdata was:\n%s" % proc_errdata)
 	
 	pt = ptree.ProcessTree()
 	pid = None
