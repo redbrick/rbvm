@@ -44,11 +44,12 @@ class ProcessTree:
 			except ValueError:
 				continue
 			ptn = ProcessTreeNode(pid, self.proclist)
-			if pid == 1:
-				self.init = ptn
-			
-			self.proclist.append(ptn)
-			
+			if ptn.valid is True:
+				if pid == 1:
+					self.init = ptn
+				
+				self.proclist.append(ptn)
+		
 		for ptn in self.proclist:
 			for ptn2 in self.proclist:
 				if ptn.parent_pid == ptn2.pid:
@@ -99,22 +100,26 @@ class ProcessTreeNode:
 		
 		cmdline_fname = os.path.join(self._procdir,'cmdline')
 		
-		self.ctime = datetime.datetime.fromtimestamp(os.stat(cmdline_fname)[9])
+		try:
+			self.ctime = datetime.datetime.fromtimestamp(os.stat(cmdline_fname)[9])
 		
-		cmdline = open(cmdline_fname)
-		cmdline_bin = cmdline.read()
-		cmdline.close()
-		self.cmdline = cmdline_bin.split("\x00")
+			cmdline = open(cmdline_fname)
+			cmdline_bin = cmdline.read()
+			cmdline.close()
+			self.cmdline = cmdline_bin.split("\x00")
 		
-		if pid != 1:
-			status_file = open(os.path.join(self._procdir,'status'))
-			lines = status_file.readlines()
-			status_file.close()
+			if pid != 1:
+				status_file = open(os.path.join(self._procdir,'status'))
+				lines = status_file.readlines()
+				status_file.close()
 			
-			for l in lines:
-				if l.startswith("PPid:"):
-					ppid = l[6:]
-					self.parent_pid = int(ppid)
+				for l in lines:
+					if l.startswith("PPid:"):
+						ppid = l[6:]
+						self.parent_pid = int(ppid)
+			self.valid = True
+		except:
+			self.valid = False
 	
 	def parent_is(self, compare_to):
 		"""
