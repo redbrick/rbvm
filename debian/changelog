@@ -1,3 +1,15 @@
+rbvm (0.0.61-2) stable; urgency=low
+
+  * Added some extra exception handling.
+
+ -- Andrew Martin <werdz@redbrick.dcu.ie>  Thu, 25 Feb 2010 01:19:55 +0000
+
+rbvm (0.0.61-1) stable; urgency=low
+
+  * Added VM name change function.
+
+ -- Andrew Martin <werdz@redbrick.dcu.ie>  Thu, 25 Feb 2010 00:58:50 +0000
+
 rbvm (0.0.56-2) stable; urgency=low
 
   * Forgot to include new templates in packages.
