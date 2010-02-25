@@ -1,4 +1,5 @@
 import cherrypy
+import traceback
 import hashlib
 import cherrypy.lib.sessions
 import rbvm.lib.sqlalchemy_tool as database
@@ -80,6 +81,9 @@ class Root:
 		try:
 			vnc_password = rbvm.vmmon.power_on(vm)
 		except Exception, e:
+			if config.SHOW_TRACEBACKS is True:
+				traceback.print_exc()
+			
 			return template.render(error="Error starting VM (%s)" % repr(e),message=None,vm=vm,vnc_password=None,vnc_port=None,hostname=None)
 		
 		if vnc_password is not None:

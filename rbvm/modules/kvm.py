@@ -352,7 +352,7 @@ def power_on(vm_object):
 	
 	monitor_pt = None
 	serial_pt = None
-		
+	
 	# Try to find the names of the two pts
 	m = re.match(r'char device redirected to ([a-zA-Z0-9/]*)\nchar device redirected to ([a-zA-Z0-9/]*)', proc_errdata) # why does this come out via stderr? :/
 
