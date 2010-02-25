@@ -42,6 +42,7 @@ ifdownscript = /etc/rbvm-qemu-ifdown
 macrange = AA:BB:CC:00:00:00
 
 [debug]
+debugmode = false 
 showtracebacks = false
 logtoscreen = false 
 cherrypyenvironment = production

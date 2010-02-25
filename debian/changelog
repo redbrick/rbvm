@@ -1,3 +1,15 @@
+rbvm (0.0.61-4) stable; urgency=low
+
+  * Typo :( 
+
+ -- Andrew Martin <werdz@redbrick.dcu.ie>  Thu, 25 Feb 2010 14:49:30 +0000
+
+rbvm (0.0.61-3) stable; urgency=low
+
+  * Added debug mode verbosity 
+
+ -- Andrew Martin <werdz@redbrick.dcu.ie>  Thu, 25 Feb 2010 14:44:55 +0000
+
 rbvm (0.0.61-2) stable; urgency=low
 
   * Added some extra exception handling.

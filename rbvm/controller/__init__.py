@@ -83,7 +83,7 @@ class Root:
 		except Exception, e:
 			if config.SHOW_TRACEBACKS is True:
 				traceback.print_exc()
-			
+				cherrypy.log("Exception caught: %s\nTraceback printed to screen" % repr(e))
 			return template.render(error="Error starting VM (%s)" % repr(e),message=None,vm=vm,vnc_password=None,vnc_port=None,hostname=None)
 		
 		if vnc_password is not None:
