@@ -111,6 +111,19 @@ table.vm_info td.head {
 	color : #fff;
 }
 
+table.vm_info input {
+	border : solid 1px #000;
+	background-color : #fff;
+	color : #000;
+}
+
+table.vm_info input.btn {
+	border : solid 1px #000;
+	background-color : #c00;
+	font-size : 7pt;
+	color : #fff;
+}
+
 table.vm_actions {
 	background-color : #fff;
 	color : #000;
