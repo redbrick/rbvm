@@ -181,6 +181,33 @@ class Root:
 		
 		database.session.commit()
 		return template.render(error=None)
+	
+	@cherrypy.expose
+	@require_login
+	@verify_token
+	@template.output('changevmname.html')
+	def changevmname(self, id=None, new_name=None, token=None):
+		"""
+		Change a VM name
+		"""
+		user = get_user()
+		
+		try:
+			assert id is not None
+			assert new_name is not None
+		except:
+			return template.render(error="Missing ID or new name")
+		
+		vm_object = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
+		if vm_object is None:
+			return template.render(error="VM not found")
+		
+		if vm_object.user_id != user.id:
+			return template.render(error="Invalid user")
+		
+		vm_object.name = new_name
+		database.session.commit()
+		return template.render(error=None)
 		
 	@cherrypy.expose
 	@require_login

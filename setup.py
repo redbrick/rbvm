@@ -48,7 +48,8 @@ setup(name = 'rbvm',
 			'views/changeemail.html',
 			'views/dochangeemail.html',
 			'views/changepassword.html',
-			'views/dochangepassword.html'
+			'views/dochangepassword.html',
+			'views/changevmname.html'
 		])
 	],
 	cmdclass = {'install':install},

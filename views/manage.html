@@ -7,8 +7,18 @@
 	<body>
 		<h1>Manage VM</h1>
 		<py:if test="vm">
+			<script type="text/javascript">
+			<![CDATA[
+			function showNameChange() {
+				elem = document.getElementById('vmname_change');
+				elem.innerHTML = ' <input type="hidden" value="${token.token}" name="token" /><input type="hidden" name="id" value="${vm.id}" /><input type="text" name="new_name" /> <input type="submit" value="Change" class="btn" />';
+				
+			}
+			]]>
+			</script>
+			<form action="/changevmname" method="POST">
 			<table class="vm_info">
-				<tr><td class="head">VM Name</td><td>${vm.name}</td><td class="head">RAM</td><td>${vm.memory}MB</td></tr>
+				<tr><td class="head">VM Name</td><td>${vm.name} <span id="vmname_change"><input type="button" class="btn" onclick="showNameChange()" value="Change" /></span></td><td class="head">RAM</td><td>${vm.memory}MB</td></tr>
 				<tr><td class="head">Last Launch</td><td>${vm.last_launch}</td><td class="head">CPU Cores</td><td>${vm.cpu_cores}</td></tr>
 				<tr><td class="head">Primary MAC</td><td>${vm.mac_address}</td><td class="head">Primary IP</td><td>${str(vm.assigned_ip)}</td></tr>
 				<py:for each="property in vm.properties">
@@ -16,6 +26,7 @@
 				</py:for>
 				<tr><td class="head">Status</td><td colspan="3"><py:if test="vm.status is True">Powered On</py:if><py:if test="vm.status is False">Powered Off</py:if></td></tr>
 			</table>
+			</form>
 			
 			<h3>Actions</h3>
 			<table class="vm_actions">
