@@ -14,12 +14,18 @@
 				<tr>
 					<th>VM Name</th>
 					<th>RAM</th>
+					<th>MAC Address</th>
+					<th>Assigned IP</th>
+					<th>Status</th>
 					<th>Actions</th>
 				</tr>
 				<py:for each="vm in vms">
 					<tr>
 						<td>${vm.name}</td>
 						<td>${vm.memory}MB</td>
+						<td>${vm.mac_address}</td>
+						<td>${str(vm.assigned_ip)}</td>
+						<td><py:if test="vm.status is True">Powered On</py:if><py:if test="vm.status is False">Powered Off</py:if></td>
 						<td>
 							<form action="/manage" method="GET"><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Manage" /></form>
 						</td>

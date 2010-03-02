@@ -20,6 +20,9 @@ class Root:
 		user = get_user()
 		vms = database.session.query(VirtualMachine).filter(VirtualMachine.user_id==user.id).all()
 		
+		for vm in vms:
+			vm.status = rbvm.vmmon.check_vm_status(vm)
+		
 		return template.render(vms=vms)
 	
 	@cherrypy.expose
