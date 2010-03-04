@@ -27,7 +27,18 @@
 				<tr><td class="head">Status</td><td colspan="3"><py:if test="vm.status is True">Powered On</py:if><py:if test="vm.status is False">Powered Off</py:if></td></tr>
 			</table>
 			</form>
-			
+			<h3>Boot order</h3>
+			<p>Your virtual machine is currently set to boot from <py:if test="vm.boot_device == 'c'">the hard disk</py:if><py:if test="vm.boot_device != 'c'">the CD drive</py:if>.</p>
+			<form action="/changebootorder" method="POST">
+				<input type="hidden" name="token" value="${token.token}" />
+				<input type="hidden" name="id" value="${vm.id}" />
+				<select class="red" name="boot_order">
+					<option value="d">Select a different boot order here</option>
+					<option value="d">CD drive</option>
+					<option value="c">Hard disk</option>
+				</select>
+				<input class="red" type="submit" value="Change" />
+			</form>
 			<h3>Actions</h3>
 			<table class="vm_actions">
 				<tr>
