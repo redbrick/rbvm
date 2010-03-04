@@ -187,6 +187,18 @@ div.loginbox input.btn {
 	color : #fff;
 }
 
+input.red {
+	border : solid 1px #000;
+	background-color : #c00;
+	color : #fff;
+}
+
+select.red {
+	border : solid 1px #000;
+	background-color : #fff;
+	color : #000;
+}
+
 table.formtable {
 	width : 800px;
 	margin-left : auto;

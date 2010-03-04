@@ -218,6 +218,37 @@ def read_from_serial(vm_object):
 	
 	return data
 
+def list_block_devices(vm_object):
+	"""
+	Returns a list of (name, type) tuples showing block devices on 
+	the VM
+	"""
+	assert vm_object is not None
+	assert check_vm_status(vm_object) is True
+	write_to_monitor(vm_object, "info block\n")
+	block_info = read_from_monitor(vm_object)
+	lines = block_info.splitlines()
+	
+	devices = []
+	for line in lines:
+		m = re.match(r'([^:]+): type=(.*?) removable=[01].*$', line)
+		if m is not None:
+			# device match
+			devices.append((m.group(1),m.group(2)))
+	
+	return devices
+
+def set_boot_device(vm_object,boot_list):
+	"""
+	Sets the boot device of a VM
+	"""
+	assert vm_object is not None
+	assert check_vm_status(vm_object) is True
+	assert boot_list in ['c','d']
+	
+	write_to_monitor(vm_object,"boot_set %s\n" % boot_list)
+	read_from_monitor(vm_object)
+
 def mount_iso(vm_object, iso_name):
 	"""
 	Verify that a VM is powered on, and mount an ISO
@@ -236,6 +267,7 @@ def mount_iso(vm_object, iso_name):
 	iso_full_path = os.path.join(config.ISO_DIR,iso_name)
 	monitor_cmd = "change ide1-cd0 " + iso_full_path + "\n"
 	write_to_monitor(vm_object,monitor_cmd)
+	read_from_monitor(vm_object)
 
 def reset_vm(vm_object):
 	"""
@@ -246,6 +278,7 @@ def reset_vm(vm_object):
 	
 	monitor_cmd = "system_reset\n"
 	write_to_monitor(vm_object,monitor_cmd)
+	read_from_monitor(vm_object)
 
 def power_off(vm_object):
 	"""
@@ -305,12 +338,17 @@ def power_on(vm_object):
 	smp_param = vm_object.cpu_cores
 	mem_param = vm_object.memory
 	mac_param = vm_object.mac_address
+	boot_param = vm_object.boot_device
+	
+	if boot_param not in ['c','d']:
+		boot_param = 'c'
 	
 	assert smp_param is not None
 	assert mem_param is not None
 	assert vnc_param is not None
 	assert hd_param != "" and hd_param is not None
 	assert mac_param is not None
+	assert boot_param in ['d','c']
 	
 	# Generate vnc password:
 	vnc_password = "".join(random.sample(string.letters + string.digits,8))
@@ -325,7 +363,7 @@ def power_on(vm_object):
 	subprocess.call(brctl_params) # we don't really care if this fails - in fact, we hope it will.
 	
 	# Run the vmm
-	kvm_params = "-net nic,macaddr=%s -net tap,ifname=%s,script=%s,downscript=%s %s -smp %i -m %i -serial pty -monitor pty -vnc %s -daemonize" % (mac_param,tap,config.IFUP_SCRIPT,config.IFDOWN_SCRIPT,hd_param,smp_param, mem_param, vnc_param)
+	kvm_params = "-net nic,macaddr=%s -net tap,ifname=%s,script=%s,downscript=%s %s -smp %i -m %i -serial pty -monitor pty -vnc %s -boot order=%s -daemonize" % (mac_param,tap,config.IFUP_SCRIPT,config.IFDOWN_SCRIPT,hd_param,smp_param, mem_param, vnc_param, boot_param)
 	kvm_param_list = [config.TOOL_KVM] + kvm_params.split()
 	
 	if config.DEBUG_MODE is True:
@@ -388,6 +426,7 @@ def power_on(vm_object):
 	os.write(m_w,"change vnc password\n")
 	os.read(m_r,4096)
 	os.write(m_w,vnc_password + "\n")
+	os.read(m_r, 4096)
 	
 	os.close(m_w)
 	os.close(m_r)

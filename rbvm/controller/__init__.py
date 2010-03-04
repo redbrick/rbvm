@@ -215,7 +215,38 @@ class Root:
 		vm_object.name = new_name
 		database.session.commit()
 		return template.render(error=None)
+	
+	@cherrypy.expose
+	@require_login
+	@verify_token
+	@template.output('changebootorder.html')
+	def changebootorder(self, id=None, boot_order=None, token=None):
+		"""
+		Change a VM boot order
+		"""
+		user = get_user()
 		
+		try:
+			assert id is not None
+			assert boot_order in ['c','d']
+		except:
+			return template.render(error="Missing ID invalid boot order")
+				
+		vm_object = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
+		if vm_object is None:
+			return template.render(error="VM not found")
+		
+		if vm_object.user_id != user.id:
+			return template.render(error="Invalid user")
+		
+		vm_status = rbvm.vmmon.check_vm_status(vm_object)
+		if vm_status is True:
+			rbvm.vmmon.set_boot_device(vm_object, boot_order)
+		
+		vm_object.boot_device = boot_order
+		database.session.commit()
+		return template.render(error=None)
+	
 	@cherrypy.expose
 	@require_login
 	@verify_token
