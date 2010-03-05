@@ -40,6 +40,11 @@ bridge = br0
 ifupscript = /etc/rbvm-qemu-ifup
 ifdownscript = /etc/rbvm-qemu-ifdown
 macrange = AA:BB:CC:00:00:00
+monitorbaseport = 4000
+serialbaseport = 4500
+parallelbaseport = 5000
+iolistenaddr = 127.0.0.1
+maxforktimeout = 10
 
 [debug]
 debugmode = false 
