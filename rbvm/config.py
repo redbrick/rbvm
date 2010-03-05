@@ -67,6 +67,31 @@ except:
 	DEFAULT_CPU_CORES = 1
 
 try:
+	MONITOR_BASE_PORT = config.getint('vm','monitorbaseport')
+except:
+	MONITOR_BASE_PORT = 4000
+
+try:
+	SERIAL_BASE_PORT = config.getint('vm','serialbaseport')
+except:
+	SERIAL_BASE_PORT = 4500
+
+try:
+	PARALLEL_BASE_PORT = config.getint('vm','parallelbaseport')
+except:
+	PARALLEL_BASE_PORT = 5000
+
+try:
+	IO_LISTEN_ADDRESS = config.get('vm','iolistenaddr')
+except:
+	IO_LISTEN_ADDRESS = '127.0.0.1'
+
+try:
+	MAX_FORK_TIMEOUT = config.getint('vm','maxforktimeout')
+except:
+	MAX_FORK_TIMEOUT = 10
+
+try:
 	ACCESS_LOG = config.get('web','accesslog')
 except:
 	ACCESS_LOG = 'access.log'

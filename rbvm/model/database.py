@@ -129,14 +129,16 @@ class VirtualMachine(Base):
 	id = Column(Integer,Sequence('virtual_machine_id_seq'),primary_key=True)
 	name = Column(String(255))
 	user_id = Column(ForeignKey('user_table.id'))
-	console_pt = Column(String(255),nullable=True)
-	monitor_pt = Column(String(255),nullable=True)
 	pid = Column(Integer,nullable=True)
 	memory = Column(Integer)
 	cpu_cores = Column(Integer)
 	last_launch = Column(DateTime,nullable=True)
 	assigned_ip = Column(String(255))
 	mac_address = Column(String(255))
+	nic_device = Column(String(20)) # ne2k_pci,i82551,i82557b,i82559er,rtl8139,e1000,pcnet,virtio
+	hpet = Column(Boolean)
+	acpi = Column(Boolean)
+	vga_device = Column(String(20)) # cirrus,std,vmware
 	boot_device = Column(String(255))
 	properties = relation('Property',order_by='Property.id',backref='virtual_machine')
 	

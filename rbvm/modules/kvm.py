@@ -8,6 +8,7 @@ import subprocess
 import time
 import datetime
 import cherrypy
+import socket
 from rbvm.model.database import *
 import rbvm.lib.sqlalchemy_tool as database
 import rbvm.lib.ptree as ptree
@@ -115,6 +116,9 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 	vm.cpu_cores = cpu_cores
 	vm.mac_address = mac_address
 	vm.assigned_ip = vm_properties.ip
+	vm.nic_driver = 'ne2k_pci'
+	vm.boot_device = 'd'
+	
 	session.add(vm)
 	session.commit()
 	print "VM created, populating disk image list."
@@ -162,61 +166,43 @@ def check_vm_status(vm_object):
 	else:
 		return True # all checks pass, the vm seems to be running
 
-def write_to_monitor(vm_object,data):
+def get_monitor_socket(vm_object):
 	"""
-	Sends data to a VM's monitor.
+	Returns a TCP stream socket connected to the VM's monitor.
 	"""
 	assert vm_object is not None
 	assert check_vm_status(vm_object) is True
 	
-	monitor_pt = vm_object.monitor_pt
-	
-	m_w = os.open(monitor_pt,os.O_WRONLY)
-	os.write(m_w,data)
-	os.close(m_w)
+	monitor_tcp_port = config.MONITOR_BASE_PORT + vm_object.id
+	monitor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	monitor_socket.connect((config.IO_LISTEN_ADDRESS, monitor_tcp_port))
+	return monitor_socket
 
-def read_from_monitor(vm_object):
+def get_serial_socket(vm_object):
 	"""
-	Reads data from a VM's monitor.
+	Returns a TCP stream socket connected to the VM's serial
+	port.
 	"""
 	assert vm_object is not None
 	assert check_vm_status(vm_object) is True
 	
-	monitor_pt = vm_object.monitor_pt
-	
-	m_r = os.open(monitor_pt,os.O_RDONLY)
-	data = os.read(m_r,4096)
-	os.close(m_r)
-	
-	return data
+	serial_tcp_port = config.SERIAL_BASE_PORT + vm_object.id
+	serial_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	serial_socket.connect((config.IO_LISTEN_ADDRESS, serial_tcp_port))
+	return serial_socket
 
-def write_to_serial(vm_object,data):
+def get_parallel_socket(vm_object):
 	"""
-	Sends data to a VM's serial line.
-	"""
-	assert vm_object is not None
-	assert check_vm_status(vm_object) is True
-	
-	serial_pt = vm_object.console_pt
-	
-	m_w = os.open(serial_pt,os.O_WRONLY)
-	os.write(m_w,data)
-	os.close(m_w)
-
-def read_from_serial(vm_object):
-	"""
-	Reads data from a VM's serial line.
+	Returns a TCP stream socket connected to the VM's parallel
+	port.
 	"""
 	assert vm_object is not None
 	assert check_vm_status(vm_object) is True
 	
-	serial_pt = vm_object.console_pt
-	
-	m_r = os.open(serial_pt,os.O_RDONLY)
-	data = os.read(m_r,4096)
-	os.close(m_r)
-	
-	return data
+	parallel_tcp_port = config.PARALLEL_BASE_PORT + vm_object.id
+	parallel_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	parallel_socket.connect((config.IO_LISTEN_ADDRESS, parallel_tcp_port))
+	return parallel_socket
 
 def list_block_devices(vm_object):
 	"""
@@ -225,8 +211,12 @@ def list_block_devices(vm_object):
 	"""
 	assert vm_object is not None
 	assert check_vm_status(vm_object) is True
-	write_to_monitor(vm_object, "info block\n")
-	block_info = read_from_monitor(vm_object)
+	
+	monitor_socket = get_monitor_socket(vm_object)
+	monitor_socket.send("info block\n")
+	block_info = socket.recv(4096)
+	monitor_socket.close()
+	
 	lines = block_info.splitlines()
 	
 	devices = []
@@ -246,8 +236,10 @@ def set_boot_device(vm_object,boot_list):
 	assert check_vm_status(vm_object) is True
 	assert boot_list in ['c','d']
 	
-	write_to_monitor(vm_object,"boot_set %s\n" % boot_list)
-	read_from_monitor(vm_object)
+	monitor_socket = get_monitor_socket(vm_object)
+	monitor_socket.send("boot_set %s\n")
+	monitor_socket.recv(4096)
+	monitor_socket.close()
 
 def mount_iso(vm_object, iso_name):
 	"""
@@ -266,8 +258,11 @@ def mount_iso(vm_object, iso_name):
 	
 	iso_full_path = os.path.join(config.ISO_DIR,iso_name)
 	monitor_cmd = "change ide1-cd0 " + iso_full_path + "\n"
-	write_to_monitor(vm_object,monitor_cmd)
-	read_from_monitor(vm_object)
+	
+	monitor_socket = get_monitor_socket(vm_object)
+	monitor_socket.send(monitor_cmd)
+	monitor_socket.recv(4096)
+	monitor_socket.close()
 
 def reset_vm(vm_object):
 	"""
@@ -276,9 +271,12 @@ def reset_vm(vm_object):
 	assert vm_object is not None
 	assert check_vm_status(vm_object) is True
 	
+	monitor_socket = get_monitor_socket(vm_object)
 	monitor_cmd = "system_reset\n"
-	write_to_monitor(vm_object,monitor_cmd)
-	read_from_monitor(vm_object)
+	
+	monitor_socket.send(monitor_cmd)
+	monitor_socket.recv(4096)
+	monitor_socket.close()
 
 def power_off(vm_object):
 	"""
@@ -288,8 +286,14 @@ def power_off(vm_object):
 	assert vm_object is not None
 	assert check_vm_status(vm_object) is True
 	
+	monitor_socket = get_monitor_socket(vm_object)
+	
 	monitor_cmd = "quit\n"
-	write_to_monitor(vm_object,monitor_cmd)
+	monitor_socket.send(monitor_cmd)
+	try:
+		monitor_socket.close()
+	except:
+		pass
 
 def power_on(vm_object):
 	"""
@@ -339,9 +343,17 @@ def power_on(vm_object):
 	mem_param = vm_object.memory
 	mac_param = vm_object.mac_address
 	boot_param = vm_object.boot_device
+	nic_param = vm_object.nic_device
+	
+	if nic_param not in ['ne2k_pci','i82551','i82557b','i82559er','rtl8139','e1000','pcnet','virtio']:
+		nic_param = 'ne2k_pci'
 	
 	if boot_param not in ['c','d']:
-		boot_param = 'c'
+		boot_param = 'd'
+	
+	monitor_tcp_port = config.MONITOR_BASE_PORT + vm_object.id
+	serial_tcp_port = config.SERIAL_BASE_PORT + vm_object.id
+	parallel_tcp_port = config.PARALLEL_BASE_PORT + vm_object.id
 	
 	assert smp_param is not None
 	assert mem_param is not None
@@ -349,6 +361,16 @@ def power_on(vm_object):
 	assert hd_param != "" and hd_param is not None
 	assert mac_param is not None
 	assert boot_param in ['d','c']
+	assert nic_param in ['ne2k_pci','i82551','i82557b','i82559er','rtl8139','e1000','pcnet','virtio']
+	assert monitor_tcp_port > 1024
+	assert serial_tcp_port > 1024
+	assert parallel_tcp_port > 1024
+	assert monitor_tcp_port != serial_tcp_port
+	assert monitor_tcp_port != parallel_tcp_port
+	assert serial_tcp_port != parallel_tcp_port
+	assert vm_object.id + 5900 != monitor_tcp_port
+	assert vm_object.id + 5900 != parallel_tcp_port
+	assert vm_object.id + 5900 != serial_tcp_port
 	
 	# Generate vnc password:
 	vnc_password = "".join(random.sample(string.letters + string.digits,8))
@@ -363,76 +385,52 @@ def power_on(vm_object):
 	subprocess.call(brctl_params) # we don't really care if this fails - in fact, we hope it will.
 	
 	# Run the vmm
-	kvm_params = "-net nic,macaddr=%s -net tap,ifname=%s,script=%s,downscript=%s %s -smp %i -m %i -serial pty -monitor pty -vnc %s -boot order=%s -daemonize" % (mac_param,tap,config.IFUP_SCRIPT,config.IFDOWN_SCRIPT,hd_param,smp_param, mem_param, vnc_param, boot_param)
+	kvm_params = "-net nic,macaddr=%s,model=%s -net tap,ifname=%s,script=%s,downscript=%s %s -smp %i -m %i -serial tcp:%s:%i,server,nowait -monitor tcp:%s:%i,server,nowait -parallel tcp:%s:%i,server,nowait -vnc %s -boot order=%s -daemonize" % (mac_param,nic_param,tap,config.IFUP_SCRIPT,config.IFDOWN_SCRIPT,hd_param,smp_param, mem_param, config.IO_LISTEN_ADDRESS, serial_tcp_port, config.IO_LISTEN_ADDRESS, monitor_tcp_port, config.IO_LISTEN_ADDRESS, parallel_tcp_port, vnc_param, boot_param)
 	kvm_param_list = [config.TOOL_KVM] + kvm_params.split()
 	
 	if config.DEBUG_MODE is True:
 		cherrypy.log("DEBUG: kvm_param_list is: %s" % str(kvm_param_list))
 	
-	proc = subprocess.Popen(kvm_param_list,close_fds=True,stderr=subprocess.PIPE)
+	proc = subprocess.Popen(kvm_param_list,close_fds=True)
 	known_pid = proc.pid
-	proc_errdata = proc.stderr.read()
-	proc.stderr.close()
 	
-	if config.DEBUG_MODE is True:
-		cherrypy.log("DEBUG: proc_errdata was:\n%s" % proc_errdata)
+	cherrypy.log("DEBUG: parent PID is: %i" % known_pid)
 	
-	pt = ptree.ProcessTree()
-	pid = None
-	for ptn in pt.proclist:
-		proc_hit = True
-		if len(ptn.cmdline) - 1 == len(kvm_param_list):
-			for i in range(0,len(kvm_param_list)):
-				if ptn.cmdline[i] != kvm_param_list[i]:
-					proc_hit = False
-		else:
-			proc_hit = False
+	for j in range(0,config.MAX_FORK_TIMEOUT):
+		cherrypy.log("DEBUG: Trying to find child pid, attempt %i" % j)
+		time.sleep(1)
 		
-		if proc_hit is True:
-			if ptn.pid != known_pid:
-				pid = ptn.pid
+		pt = ptree.ProcessTree()
+		pid = None
+		for ptn in pt.proclist:
+			proc_hit = True
+			if len(ptn.cmdline) - 1 == len(kvm_param_list):
+				for i in range(0,len(kvm_param_list)):
+					if ptn.cmdline[i] != kvm_param_list[i]:
+						proc_hit = False
+			else:
+				proc_hit = False
+		
+			if proc_hit is True:
+				if ptn.pid != known_pid:
+					pid = ptn.pid
+		
+		if pid is not None:
+			break
 	
 	if pid is None:
 		raise "Could not find PID of child process"
 	
-	monitor_pt = None
-	serial_pt = None
-	
-	# Try to find the names of the two pts
-	m = re.match(r'char device redirected to ([a-zA-Z0-9/]*)\nchar device redirected to ([a-zA-Z0-9/]*)', proc_errdata) # why does this come out via stderr? :/
-
-	# First line is the monitor, second line is the serial console
-	monitor_pt = m.group(1)
-	serial_pt = m.group(2)
-	
-	m_r = None
-	m_w = None
-	for i in range(0, 10):
-		try:
-			if m_r is None:
-				m_r = os.open(monitor_pt, os.O_RDONLY)
-			if m_w is None:
-				m_w = os.open(monitor_pt, os.O_WRONLY)
-		except OSError:
-			time.sleep(1)
-	
-	assert m_r is not None
-	assert m_w is not None
-	
-	data = os.read(m_r,4096)
-	
+	monitor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	monitor_socket.connect((config.IO_LISTEN_ADDRESS, monitor_tcp_port))
+	data = monitor_socket.recv(4096)
 	assert data.startswith("QEMU ")
+	monitor_socket.send("change vnc password\n")
+	monitor_socket.recv(4096)
+	monitor_socket.send(vnc_password + "\n")
+	monitor_socket.recv(4096)
+	monitor_socket.close()
 	
-	os.write(m_w,"change vnc password\n")
-	os.read(m_r,4096)
-	os.write(m_w,vnc_password + "\n")
-	os.read(m_r, 4096)
-	
-	os.close(m_w)
-	os.close(m_r)
-	
-	vm_object.console_pt = serial_pt
-	vm_object.monitor_pt = monitor_pt
 	vm_object.last_launch = datetime.datetime.now()
 	vm_object.pid = pid
 	
