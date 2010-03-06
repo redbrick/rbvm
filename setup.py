@@ -49,7 +49,10 @@ setup(name = 'rbvm',
 			'views/dochangeemail.html',
 			'views/changepassword.html',
 			'views/dochangepassword.html',
-			'views/changevmname.html'
+			'views/changevmname.html',
+			'views/changebootorder.html',
+			'views/changenicdevice.html',
+			'views/changenokvmirqchip.html'
 		])
 	],
 	cmdclass = {'install':install},

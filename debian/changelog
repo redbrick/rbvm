@@ -1,3 +1,23 @@
+rbvm (0.1.73-1) stable; urgency=low
+
+  * Fixed boot order selection bug.
+
+ -- Andrew Martin <werdz@redbrick.dcu.ie>  Sat, 06 Mar 2010 03:02:04 +0000
+
+rbvm (0.1.72-1) stable; urgency=low
+
+  * Major changes to KVM module.
+  * Added options to change NIC device.
+  * Added option to enable -no-kvm-irqchip.
+
+ -- Andrew Martin <werdz@redbrick.dcu.ie>  Sat, 06 Mar 2010 02:37:24 +0000
+
+rbvm (0.0.69-1) stable; urgency=low
+
+  * Added boot device selection.
+
+ -- Andrew Martin <werdz@redbrick.dcu.ie>  Thu, 04 Mar 2010 00:53:37 +0000
+
 rbvm (0.0.66-1) stable; urgency=low
 
   * Added privilege checking to utility scripts.
