@@ -375,7 +375,7 @@ def power_on(vm_object):
 	assert vm_object.id + 5900 != monitor_tcp_port
 	assert vm_object.id + 5900 != parallel_tcp_port
 	assert vm_object.id + 5900 != serial_tcp_port
-	assert no_kvm_irqchip_param is True or kvm_irqchip_param is False
+	assert no_kvm_irqchip_param is True or no_kvm_irqchip_param is False
 	
 	# Generate vnc password:
 	vnc_password = "".join(random.sample(string.letters + string.digits,8))
