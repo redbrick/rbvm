@@ -237,7 +237,7 @@ def set_boot_device(vm_object,boot_list):
 	assert boot_list in ['c','d']
 	
 	monitor_socket = get_monitor_socket(vm_object)
-	monitor_socket.send("boot_set %s\n")
+	monitor_socket.send("boot_set %s\n" % boot_list)
 	monitor_socket.recv(4096)
 	monitor_socket.close()
 
