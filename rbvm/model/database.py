@@ -138,6 +138,7 @@ class VirtualMachine(Base):
 	nic_device = Column(String(20)) # ne2k_pci,i82551,i82557b,i82559er,rtl8139,e1000,pcnet,virtio
 	hpet = Column(Boolean)
 	acpi = Column(Boolean)
+	no_kvm_irqchip = Column(Boolean)
 	vga_device = Column(String(20)) # cirrus,std,vmware
 	boot_device = Column(String(255))
 	properties = relation('Property',order_by='Property.id',backref='virtual_machine')

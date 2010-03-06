@@ -50,7 +50,9 @@ class Root:
 		database.session.add(token)
 		database.session.commit()
 		
-		return template.render(vm=vm,token=token)
+		nic_devices = ['ne2k_pci','i82551','i82557b','i82559er','rtl8139','e1000','pcnet','virtio']
+		
+		return template.render(vm=vm,token=token,nic_devices=nic_devices)
 	
 	@cherrypy.expose
 	@require_login
@@ -230,14 +232,14 @@ class Root:
 			assert id is not None
 			assert boot_order in ['c','d']
 		except:
-			return template.render(error="Missing ID invalid boot order")
+			return template.render(error="Missing ID invalid boot order",vm=None)
 				
 		vm_object = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
 		if vm_object is None:
-			return template.render(error="VM not found")
+			return template.render(error="VM not found",vm=None)
 		
 		if vm_object.user_id != user.id:
-			return template.render(error="Invalid user")
+			return template.render(error="Invalid user",vm=None)
 		
 		vm_status = rbvm.vmmon.check_vm_status(vm_object)
 		if vm_status is True:
@@ -245,7 +247,67 @@ class Root:
 		
 		vm_object.boot_device = boot_order
 		database.session.commit()
-		return template.render(error=None)
+		return template.render(error=None,vm=vm_object)
+	
+	@cherrypy.expose
+	@require_login
+	@verify_token
+	@template.output('changenicdevice.html')
+	def changenicdevice(self, id=None, nic_device=None, token=None):
+		"""
+		Change the VM nice device
+		"""
+		user = get_user()
+		
+		valid_devices = ['ne2k_pci','i82551','i82557b','i82559er','rtl8139','e1000','pcnet','virtio']
+		
+		try:
+			assert id is not None
+			assert nic_device in valid_devices
+		except:
+			return template.render(error="Missing ID or invalid NIC device",vm=None)
+
+		vm_object = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
+		if vm_object is None:
+			return template.render(error="VM not found",vm=None)
+
+		if vm_object.user_id != user.id:
+			return template.render(error="Invalid user",vm=None)
+		
+		vm_object.nic_device = nic_device
+		database.session.commit()
+		return template.render(error=None,vm=vm_object)
+	
+	@cherrypy.expose
+	@require_login
+	@verify_token
+	@template.output('changenokvmirqchip.html')
+	def changenokvmirqchip(self, id=None, no_kvm_irqchip="off", token=None):
+		"""
+		Change the VM nice device
+		"""
+		user = get_user()
+		
+		try:
+			assert id is not None
+			assert no_kvm_irqchip in ["off","on"]
+		except:
+			return template.render(error="Missing ID or invalid NIC device",vm=None)
+
+		vm_object = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
+		if vm_object is None:
+			return template.render(error="VM not found",vm=None)
+
+		if vm_object.user_id != user.id:
+			return template.render(error="Invalid user",vm=None)
+		
+		if no_kvm_irqchip == "off":
+			vm_object.no_kvm_irqchip = False
+		else:
+			vm_object.no_kvm_irqchip = True
+		
+		database.session.commit()
+		return template.render(error=None,vm=vm_object)
 	
 	@cherrypy.expose
 	@require_login

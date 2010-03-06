@@ -344,6 +344,10 @@ def power_on(vm_object):
 	mac_param = vm_object.mac_address
 	boot_param = vm_object.boot_device
 	nic_param = vm_object.nic_device
+	no_kvm_irqchip_param = vm_object.no_kvm_irqchip
+	
+	if no_kvm_irqchip_param is None:
+		no_kvm_irqchip_param = False
 	
 	if nic_param not in ['ne2k_pci','i82551','i82557b','i82559er','rtl8139','e1000','pcnet','virtio']:
 		nic_param = 'ne2k_pci'
@@ -371,6 +375,7 @@ def power_on(vm_object):
 	assert vm_object.id + 5900 != monitor_tcp_port
 	assert vm_object.id + 5900 != parallel_tcp_port
 	assert vm_object.id + 5900 != serial_tcp_port
+	assert no_kvm_irqchip_param is True or kvm_irqchip_param is False
 	
 	# Generate vnc password:
 	vnc_password = "".join(random.sample(string.letters + string.digits,8))
@@ -384,8 +389,13 @@ def power_on(vm_object):
 	brctl_params = [config.TOOL_SUDO,config.TOOL_BRCTL,'delif',config.NETWORK_BRIDGE,tap]
 	subprocess.call(brctl_params) # we don't really care if this fails - in fact, we hope it will.
 	
+	if no_kvm_irqchip_param is True:
+		no_kvm_irqchip_str = " -no-kvm-irqchip"
+	else:
+		no_kvm_irqchip_str = ""
+	
 	# Run the vmm
-	kvm_params = "-net nic,macaddr=%s,model=%s -net tap,ifname=%s,script=%s,downscript=%s %s -smp %i -m %i -serial tcp:%s:%i,server,nowait -monitor tcp:%s:%i,server,nowait -parallel tcp:%s:%i,server,nowait -vnc %s -boot order=%s -daemonize" % (mac_param,nic_param,tap,config.IFUP_SCRIPT,config.IFDOWN_SCRIPT,hd_param,smp_param, mem_param, config.IO_LISTEN_ADDRESS, serial_tcp_port, config.IO_LISTEN_ADDRESS, monitor_tcp_port, config.IO_LISTEN_ADDRESS, parallel_tcp_port, vnc_param, boot_param)
+	kvm_params = "-net nic,macaddr=%s,model=%s -net tap,ifname=%s,script=%s,downscript=%s %s -smp %i -m %i -serial tcp:%s:%i,server,nowait -monitor tcp:%s:%i,server,nowait -parallel tcp:%s:%i,server,nowait -vnc %s -boot order=%s%s -daemonize" % (mac_param,nic_param,tap,config.IFUP_SCRIPT,config.IFDOWN_SCRIPT,hd_param,smp_param, mem_param, config.IO_LISTEN_ADDRESS, serial_tcp_port, config.IO_LISTEN_ADDRESS, monitor_tcp_port, config.IO_LISTEN_ADDRESS, parallel_tcp_port, vnc_param, boot_param, no_kvm_irqchip_str)
 	kvm_param_list = [config.TOOL_KVM] + kvm_params.split()
 	
 	if config.DEBUG_MODE is True:

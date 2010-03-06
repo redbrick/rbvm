@@ -27,17 +27,40 @@
 				<tr><td class="head">Status</td><td colspan="3"><py:if test="vm.status is True">Powered On</py:if><py:if test="vm.status is False">Powered Off</py:if></td></tr>
 			</table>
 			</form>
-			<h3>Boot order</h3>
+			<h3>Boot Device</h3>
 			<p>Your virtual machine is currently set to boot from <py:if test="vm.boot_device == 'c'">the hard disk</py:if><py:if test="vm.boot_device != 'c'">the CD drive</py:if>.</p>
 			<form action="/changebootorder" method="POST">
 				<input type="hidden" name="token" value="${token.token}" />
 				<input type="hidden" name="id" value="${vm.id}" />
 				<select class="red" name="boot_order">
-					<option value="d">Select a different boot order here</option>
+					<option value="d">Select a different boot device here</option>
 					<option value="d">CD drive</option>
 					<option value="c">Hard disk</option>
 				</select>
-				<input class="red" type="submit" value="Change" />
+				<input class="red" type="submit" value="Change Boot Device" />
+			</form>
+			<h3>Hardware</h3>
+			<p>Your network device is currently set to: <py:if test="vm.nic_device not in nic_devices">ne2k_pci</py:if><py:if test="vm.nic_device in nic_devices">${vm.nic_device}</py:if></p>
+			<form action="/changenicdevice" method="POST">
+				<input type="hidden" name="token" value="${token.token}" />
+				<input type="hidden" name="id" value="${vm.id}" />
+				<select class="red" name="nic_device">
+					<option value="ne2k_pci">Select a different NIC device here</option>
+					<py:for each="device in nic_devices">
+						<option value="${device}">${device}</option>
+					</py:for>
+				</select>
+				<input class="red" type="submit" value="Change NIC Device" />
+			</form>
+			
+			<p>Selecting the -no-kvm-irqchip option can sometimes fix guest issues:</p>
+			<form action="/changenokvmirqchip" method="POST">
+				<input type="hidden" name="token" value="${token.token}" />
+				<input type="hidden" name="id" value="${vm.id}" />
+				<py:if test="vm.no_kvm_irqchip is True"><input type="checkbox" name="no_kvm_irqchip" checked="checked" /></py:if>
+				
+				<py:if test="vm.no_kvm_irqchip is False or vm.no_kvm_irqchip is None"><input type="checkbox" name="no_kvm_irqchip" /></py:if> Disable KVM IRQ chip (-no-kvm-irqchip)
+				<input type="submit" class="red" value="Change IRQ chip setting" />
 			</form>
 			<h3>Actions</h3>
 			<table class="vm_actions">
