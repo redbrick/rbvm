@@ -145,6 +145,7 @@ def check_vm_status(vm_object):
 	cmd_path = '/proc/' + str(known_pid) + '/cmdline'
 	
 	if not os.path.exists(cmd_path):
+		cherrypy.log("DEBUG: check_vm_status for vm %i (known pid: %i) failed on os.path.exists(cmd_path)." % (vm_object.id, vm_object.pid))
 		return False # can't find proc info, VM not running
 	
 	timestamp = os.stat(cmd_path)[9] # ctime
@@ -155,6 +156,7 @@ def check_vm_status(vm_object):
 	dt_max = datetime.datetime.fromtimestamp(ts_max)
 	
 	if last_launch < dt_min or last_launch > dt_max:
+		cherrypy.log("DEBUG: check_vm_status for vm %i (known pid: %i) failed on last launch time check." % (vm_object.id, vm_object.pid))
 		return False # the process is the wrong age, not the VM
 
 	f = open(cmd_path, 'r')
@@ -162,6 +164,7 @@ def check_vm_status(vm_object):
 	f.close()
 	cmds = cmdline.split("\x00")
 	if cmds[0] != config.TOOL_KVM:
+		cherrypy.log("DEBUG: check_vm_status for vm %i (known pid: %i) failed on KVM tool check." % (vm_object.id, vm_object.pid))
 		return False # it's not KVM :( return false
 	else:
 		return True # all checks pass, the vm seems to be running
