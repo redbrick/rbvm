@@ -1,3 +1,9 @@
+rbvm (0.1.78-1) stable; urgency=low
+
+  * Removed timestamp checks from check_vm_status.
+
+ -- Andrew Martin <werdz@redbrick.dcu.ie>  Mon, 15 Mar 2010 19:10:58 +0000
+
 rbvm (0.1.76-1) stable; urgency=low
 
   * Added debug code to process detection.
