@@ -52,7 +52,8 @@ setup(name = 'rbvm',
 			'views/changevmname.html',
 			'views/changebootorder.html',
 			'views/changenicdevice.html',
-			'views/changenokvmirqchip.html'
+			'views/changenokvmirqchip.html',
+			'views/changeacpi.html'
 		])
 	],
 	cmdclass = {'install':install},

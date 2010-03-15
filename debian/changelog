@@ -1,3 +1,15 @@
+rbvm (0.1.76-1) stable; urgency=low
+
+  * Added debug code to process detection.
+
+ -- Andrew Martin <werdz@redbrick.dcu.ie>  Mon, 15 Mar 2010 01:28:51 +0000
+
+rbvm (0.1.75-1) stable; urgency=low
+
+  * Added UI controls to disable ACPI.
+
+ -- Andrew Martin <werdz@redbrick.dcu.ie>  Mon, 15 Mar 2010 01:15:03 +0000
+
 rbvm (0.1.73-1) stable; urgency=low
 
   * Fixed boot order selection bug.
