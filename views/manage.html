@@ -53,6 +53,16 @@
 				<input class="red" type="submit" value="Change NIC Device" />
 			</form>
 			
+			<p>ACPI is currently <py:if test="vm.acpi is False">disabled</py:if><py:if test="vm.acpi is not False">enabled</py:if>.</p>
+			<form action="/changeacpi" method="POST">
+				<input type="hidden" name="token" value="${token.token}" />
+				<input type="hidden" name="id" value="${vm.id}" />
+				<py:if test="vm.acpi is False"><input type="checkbox" name="acpi" /></py:if>
+				<py:if test="vm.acpi is not False"><input type="checkbox" name="acpi" checked="checked" /></py:if>
+				Enable ACPI
+				<input type="submit" class="red" value="Save ACPI setting" />
+			</form>
+
 			<p>Selecting the -no-kvm-irqchip option can sometimes fix guest issues:</p>
 			<form action="/changenokvmirqchip" method="POST">
 				<input type="hidden" name="token" value="${token.token}" />
@@ -60,7 +70,7 @@
 				<py:if test="vm.no_kvm_irqchip is True"><input type="checkbox" name="no_kvm_irqchip" checked="checked" /></py:if>
 				
 				<py:if test="vm.no_kvm_irqchip is False or vm.no_kvm_irqchip is None"><input type="checkbox" name="no_kvm_irqchip" /></py:if> Disable KVM IRQ chip (-no-kvm-irqchip)
-				<input type="submit" class="red" value="Change IRQ chip setting" />
+				<input type="submit" class="red" value="Save IRQ chip setting" />
 			</form>
 			<h3>Actions</h3>
 			<table class="vm_actions">

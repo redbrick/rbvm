@@ -277,6 +277,37 @@ class Root:
 		vm_object.nic_device = nic_device
 		database.session.commit()
 		return template.render(error=None,vm=vm_object)
+
+	@cherrypy.expose
+	@require_login
+	@verify_token
+	@template.output('changeacpi.html')
+	def changeacpi(self, id=None, acpi="off", token=None):
+		"""
+		Change the VM ACPI setting
+		"""
+		user = get_user()
+		
+		try:
+			assert id is not None
+			assert acpi in ["off","on"]
+		except:
+			return template.render(error="Missing ID or invalid NIC device",vm=None)
+		
+		vm_object = database.session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
+		if vm_object is None:
+			return template.render(error="VM not found",vm=None)
+		
+		if vm_object.user_id != user.id:
+			return template.render(error="Invalid user",vm=None)
+		
+		if acpi == "off":
+			vm_object.acpi = False
+		else:
+			vm_object.acpi = True
+		
+		database.session.commit()
+		return template.render(error=None,vm=vm_object)
 	
 	@cherrypy.expose
 	@require_login
@@ -284,7 +315,7 @@ class Root:
 	@template.output('changenokvmirqchip.html')
 	def changenokvmirqchip(self, id=None, no_kvm_irqchip="off", token=None):
 		"""
-		Change the VM nice device
+		Change the VM no KVM irqchip setting
 		"""
 		user = get_user()
 		
@@ -308,6 +339,7 @@ class Root:
 		
 		database.session.commit()
 		return template.render(error=None,vm=vm_object)
+	
 	
 	@cherrypy.expose
 	@require_login
