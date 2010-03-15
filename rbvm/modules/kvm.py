@@ -148,17 +148,6 @@ def check_vm_status(vm_object):
 		cherrypy.log("DEBUG: check_vm_status for vm %i (known pid: %i) failed on os.path.exists(cmd_path)." % (vm_object.id, vm_object.pid))
 		return False # can't find proc info, VM not running
 	
-	timestamp = os.stat(cmd_path)[9] # ctime
-	ts_min = timestamp - 10
-	ts_max = timestamp + 10
-	
-	dt_min = datetime.datetime.fromtimestamp(ts_min)
-	dt_max = datetime.datetime.fromtimestamp(ts_max)
-	
-	if last_launch < dt_min or last_launch > dt_max:
-		cherrypy.log("DEBUG: check_vm_status for vm %i (known pid: %i) failed on last launch time check." % (vm_object.id, vm_object.pid))
-		return False # the process is the wrong age, not the VM
-
 	f = open(cmd_path, 'r')
 	cmdline = f.read(8192)
 	f.close()
