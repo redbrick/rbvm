@@ -145,7 +145,8 @@ def check_vm_status(vm_object):
 	cmd_path = '/proc/' + str(known_pid) + '/cmdline'
 	
 	if not os.path.exists(cmd_path):
-		cherrypy.log("DEBUG: check_vm_status for vm %i (known pid: %i) failed on os.path.exists(cmd_path)." % (vm_object.id, vm_object.pid))
+		if config.DEBUG_MODE is True:
+			cherrypy.log("DEBUG: check_vm_status for vm %i (known pid: %i) failed on os.path.exists(cmd_path)." % (vm_object.id, vm_object.pid))
 		return False # can't find proc info, VM not running
 	
 	f = open(cmd_path, 'r')
@@ -153,7 +154,8 @@ def check_vm_status(vm_object):
 	f.close()
 	cmds = cmdline.split("\x00")
 	if cmds[0] != config.TOOL_KVM:
-		cherrypy.log("DEBUG: check_vm_status for vm %i (known pid: %i) failed on KVM tool check." % (vm_object.id, vm_object.pid))
+		if config.DEBUG_MODE is True:
+			cherrypy.log("DEBUG: check_vm_status for vm %i (known pid: %i) failed on KVM tool check." % (vm_object.id, vm_object.pid))
 		return False # it's not KVM :( return false
 	else:
 		return True # all checks pass, the vm seems to be running

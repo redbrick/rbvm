@@ -1,0 +1,67 @@
+#!/usr/bin/python2.6
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from rbvm.model.database import *
+import rbvm.config as config
+import rbvm.vmmon
+
+import os
+import grp
+import pwd
+import smtplib
+import string
+import random
+from optparse import OptionParser
+
+def main():
+	usage = "usage: %prog command [options]"
+	parser = OptionParser(usage=usage)
+	
+	parser.add_option('-v','--verbose',action='store_true',default=False,help='make lots of noise')
+	options, args = parser.parse_args()
+	if len(args) < 1:
+		parser.error("a command (listusers, listvms) must be specified")
+	
+	if options.verbose:	
+		print "Connecting to database..."
+	
+	engine = create_engine(config.DATABASE_URI)
+	Session = sessionmaker()
+	Session.configure(bind=engine)
+	session = Session()
+	
+	if options.verbose:
+		print "Done"
+	
+	if args[0] == 'listusers':
+		users = session.query(User).all()
+		print "%-10s | %s" % ("Username","Email address")
+		
+		for user in users:
+			print "%-10s | %s" % (user.username, user.email_address)
+	elif args[0] == 'listvms':
+		vms = session.query(VirtualMachine).all()
+		print "Note: PID is the last known pid; ignore this field if the VM is powered off."
+		
+		print "%-5s | %-35s | %-10s | %-6s | %6s" % ("ID","VM name","Username","Status","PID")
+		for vm in vms:
+			owner = session.query(User).filter(User.id==vm.user_id).one()
+			status_boolean = rbvm.vmmon.check_vm_status(vm)
+			status = "Off"
+			if status_boolean is True:
+				status = "On"
+			
+			print "%5i | %-35.35s | %-10s | %-6s | %6i" % (vm.id, vm.name, owner.username, status, vm.pid)
+	
+
+if __name__ == '__main__':
+	# Don't run as anyone but SYSTEM_USER:SYSTEM_GROUP!
+	correct_gid = grp.getgrnam(config.SYSTEM_GROUP)[2]
+	if os.getgid() != correct_gid:
+		os.setgroups([correct_gid])
+		os.setregid(correct_gid,correct_gid)
+
+	correct_uid = pwd.getpwnam(config.SYSTEM_USERNAME)[2]
+	if os.getuid() != correct_uid:
+		os.setreuid(correct_uid,correct_uid)
+	main()
