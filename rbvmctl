@@ -140,7 +140,7 @@ def main():
 	parser.add_option('-v','--verbose',action='store_true',default=False,help='make lots of noise')
 	options, args = parser.parse_args()
 	if len(args) < 1:
-		parser.error("a command (listusers, listvms) must be specified")
+		parser.error("a command must be specified. Run rbvmctl help for more information.")
 	
 	if options.verbose:	
 		print "Connecting to database..."
