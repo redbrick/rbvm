@@ -16,6 +16,75 @@ from optparse import OptionParser
 
 session = None
 
+HELP_INDEX = """
+rbvmctl is the rbvm command line utility. Any of the following subcommands
+will work:
+
+    listusers       Displays a list of users.
+    listvms         Displays a list of virtual machines.
+    resetpw         Allows a user's password to be reset.
+    help            Displays help information.
+
+To get more information on a specific item, run 'rbvmctl help topicname',
+where topicname is one of the commands listed above.
+"""
+
+HELP_LISTUSERS = """
+The listusers command will display a table of users registered with the
+system, and their email addresses. There are no extra arguments or options
+for this command.
+"""
+
+HELP_LISTVMS = """
+The listvms command will display a table of virtual machines on the system.
+The following columns are given:
+
+    ID              A unique numeric identifier given to each VM.
+    VM name         A descriptive name given to a VM. This may be modified by
+                    the user through the web interface.
+    Username        The username of the user to whom this VM belongs.
+    Status          The current detected status (powered on or powerd off) of
+                    this VM.
+    PID             The last known process ID of this virtual machine on the
+                    host system. If the VM is powered off, this is the PID
+                    that was set the last time the VM ran.
+
+There are no extra arguments or options for this command.
+"""
+
+HELP_RESETPW = """
+The resetpw command allows a user's password to be reset. The new password
+will be generated at random and will automatically be emailed to the address
+associated with that user in the database. Use the listusers command to view
+the information on file for each user.
+
+The resetpw command requires an argument specifying the username of the user
+whose password is to be reset. For example:
+
+rbvmctl resetpw bob
+
+will reset the password for the user 'bob'.
+"""
+
+HELP_HELP = """
+Are you serious?
+"""
+
+def help(args):
+	"""
+	Displays help
+	"""
+	if len(args) < 2:
+		print HELP_INDEX
+	elif args[1] == 'listusers':
+		print HELP_LISTUSERS
+	elif args[1] == 'listvms':
+		print HELP_LISTVMS
+	elif args[1] == 'resetpw':
+		print HELP_RESETPW
+	elif args[1] == 'help':
+		print HELP_HELP
+
 def listusers():
 	"""
 	Outputs a list of users in tabular format
@@ -92,6 +161,8 @@ def main():
 		if len(args) < 2:
 			parser.error("the resetpw command requires the username as a second argument")
 		resetpw(args[1])
+	elif args[0] == 'help':
+		help(args)
 
 if __name__ == '__main__':
 	# Don't run as anyone but SYSTEM_USER:SYSTEM_GROUP!
