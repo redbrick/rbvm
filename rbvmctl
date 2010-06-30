@@ -11,9 +11,60 @@ import pwd
 import smtplib
 import string
 import random
+import sys
 from optparse import OptionParser
 
+session = None
+
+def listusers():
+	"""
+	Outputs a list of users in tabular format
+	"""
+	users = session.query(User).all()
+	print "%-10s | %s" % ("Username","Email address")
+	
+	for user in users:
+		print "%-10s | %s" % (user.username, user.email_address)
+
+def listvms():
+	"""
+	Outputs a list of VMs in tabular format
+	"""
+	vms = session.query(VirtualMachine).all()
+	print "Note: PID is the last known pid; ignore this field if the VM is powered off."
+	
+	print "%-5s | %-35s | %-10s | %-6s | %6s" % ("ID","VM name","Username","Status","PID")
+	for vm in vms:
+		owner = session.query(User).filter(User.id==vm.user_id).one()
+		status_boolean = rbvm.vmmon.check_vm_status(vm)
+		status = "Off"
+		if status_boolean is True:
+			status = "On"
+		
+		print "%5i | %-35.35s | %-10s | %-6s | %6i" % (vm.id, vm.name, owner.username, status, vm.pid)
+
+def resetpw(username):
+	"""
+	Resets a user's password
+	"""
+	password = "".join(random.sample(string.letters + string.digits,8))
+	user = session.query(User).filter(User.username==username).first()
+	if user is None:
+		print "User %s not found." % username
+		sys.exit(1)
+	
+	user.set_password(password)
+	session.commit()
+	print "Password for user %s has been changed to: %s" % (username, password)
+	print "Emailing user at %s" % user.email_address
+	s = smtplib.SMTP()
+	s.connect()
+	s.sendmail(config.EMAIL_ADDRESS, user.email_address, "From: %s\nTo: %s\nSubject: Your VM account password has been reset\n\nYour VM account password has been reset. The new password is:\n\n%s\n\nRegards,\n-Automated mailing monkey" % (config.EMAIL_ADDRESS, user.email_address, password))
+	s.quit()
+
 def main():
+	global session
+	
 	usage = "usage: %prog command [options]"
 	parser = OptionParser(usage=usage)
 	
@@ -34,25 +85,13 @@ def main():
 		print "Done"
 	
 	if args[0] == 'listusers':
-		users = session.query(User).all()
-		print "%-10s | %s" % ("Username","Email address")
-		
-		for user in users:
-			print "%-10s | %s" % (user.username, user.email_address)
+		listusers()
 	elif args[0] == 'listvms':
-		vms = session.query(VirtualMachine).all()
-		print "Note: PID is the last known pid; ignore this field if the VM is powered off."
-		
-		print "%-5s | %-35s | %-10s | %-6s | %6s" % ("ID","VM name","Username","Status","PID")
-		for vm in vms:
-			owner = session.query(User).filter(User.id==vm.user_id).one()
-			status_boolean = rbvm.vmmon.check_vm_status(vm)
-			status = "Off"
-			if status_boolean is True:
-				status = "On"
-			
-			print "%5i | %-35.35s | %-10s | %-6s | %6i" % (vm.id, vm.name, owner.username, status, vm.pid)
-	
+		listvms()
+	elif args[0] == 'resetpw':
+		if len(args) < 2:
+			parser.error("the resetpw command requires the username as a second argument")
+		resetpw(args[1])
 
 if __name__ == '__main__':
 	# Don't run as anyone but SYSTEM_USER:SYSTEM_GROUP!

@@ -31,6 +31,13 @@ class User(Base):
 	password = Column(String(255),nullable=False)
 	email_address = Column(String(255),nullable=False)
 	
+	def set_password(self,password_plain):
+		salt = ''.join(random.Random().sample(string.letters + string.digits,9))
+		hash = hashlib.sha256()
+		hash.update(password_plain + salt)
+		self.password = hash.hexdigest()
+		self.salt = salt
+		
 	def __repr__(self):
 		return "<User('%s')>" % (self.username)
 	
@@ -40,11 +47,7 @@ class User(Base):
 		if not password_plain:
 			password_plain = "".join(random.sample(string.letters + string.digits,8))
 		
-		salt = ''.join(random.Random().sample(string.letters + string.digits,9))
-		hash = hashlib.sha256()
-		hash.update(password_plain + salt)
-		self.password = hash.hexdigest()
-		self.salt = salt
+		self.set_password(password_plain)
 		self.email_address = email_address
 	
 	# }}}
