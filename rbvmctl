@@ -1,4 +1,8 @@
 #!/usr/bin/python2.6
+# This is boring, somewhat nasty procedural code. Most of the fun bits
+# are outsourced to other modules (in the data model, etc). This all just
+# deals with user interaction.
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from rbvm.model.database import *
@@ -16,12 +20,15 @@ from optparse import OptionParser
 
 session = None
 
+# The next few variables are help strings for the "help" command. How
+# interesting.
 HELP_INDEX = """
 rbvmctl is the rbvm command line utility. Any of the following subcommands
 will work:
 
     listusers       Displays a list of users.
     listvms         Displays a list of virtual machines.
+    showvm          Displays detailed information on a virtual machine.
     resetpw         Allows a user's password to be reset.
     help            Displays help information.
 
@@ -70,6 +77,12 @@ HELP_HELP = """
 Are you serious?
 """
 
+HELP_SHOWVM = """
+Displays detailed technical information on a virtual machine. The showvm
+command requires an argument specifying the numeric identifier associated
+with the VM. To get a list of identifiers, use the listvms command.
+"""
+
 def help(args):
 	"""
 	Displays help
@@ -84,6 +97,56 @@ def help(args):
 		print HELP_RESETPW
 	elif args[1] == 'help':
 		print HELP_HELP
+	elif args[1] == 'showvm':
+		print HELP_SHOWVM
+
+
+"""
+id = Column(Integer,Sequence('virtual_machine_id_seq'),primary_key=True)
+name = Column(String(255))
+user_id = Column(ForeignKey('user_table.id'))
+pid = Column(Integer,nullable=True)
+memory = Column(Integer)
+cpu_cores = Column(Integer)
+last_launch = Column(DateTime,nullable=True)
+assigned_ip = Column(String(255))
+mac_address = Column(String(255))
+nic_device = Column(String(20)) # ne2k_pci,i82551,i82557b,i82559er,rtl8139,e1000,pcnet,virtio
+hpet = Column(Boolean)
+acpi = Column(Boolean)
+no_kvm_irqchip = Column(Boolean)
+vga_device = Column(String(20)) # cirrus,std,vmware
+boot_device = Column(String(255))
+properties = relation('Property',order_by='Property.id',backref='virtual_machine')
+"""
+def showvm(id):
+	"""
+	Outputs detailed information on a VM.
+	"""
+	vm = session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
+	if vm is None:
+		print "Could not find VM."
+		sys.exit(1)
+	
+	owner = session.query(User).filter(User.id==vm.user_id).one()
+	status_boolean = rbvm.vmmon.check_vm_status(vm)
+	
+	format = "%20s : %s"
+	print format % ("ID", str(vm.id))
+	print format % ("Name", str(vm.name))
+	print format % ("Username", str(owner.username))
+	print format % ("Last known PID", str(vm.pid))
+	print format % ("CPU cores",str(vm.cpu_cores))
+	print format % ("Last launch", str(vm.last_launch))
+	print format % ("Assigned IP", str(vm.assigned_ip))
+	print format % ("MAC address", str(vm.mac_address))
+	print format % ("NIC device setting", str(vm.nic_device))
+	print format % ("HPET", "Enabled" if vm.hpet else "Disabled")
+	print format % ("ACPI", "Enabled" if vm.acpi else "Disabled")
+	print format % ("KVM IRQ chip", "Disabled" if vm.no_kvm_irqchip else "Enabled") # daargh, double negatives
+	print format % ("VGA device setting", str(vm.vga_device))
+	print format % ("Boot device", "CD drive" if vm.boot_device == 'd' else "Hard disk")
+	print format % ("Current status", "Powered on" if status_boolean is True else "Powered off")
 
 def listusers():
 	"""
@@ -159,10 +222,17 @@ def main():
 		listvms()
 	elif args[0] == 'resetpw':
 		if len(args) < 2:
-			parser.error("the resetpw command requires the username as a second argument")
+			parser.error("the resetpw command requires the username as a second argument.")
 		resetpw(args[1])
 	elif args[0] == 'help':
 		help(args)
+	elif args[0] == 'showvm':
+		if len(args) < 2:
+			parser.error("the showvm command requires the VM ID number as a second argument.")
+		try:
+			showvm(int(args[1]))
+		except ValueError:
+			parser.error("an invalid (non-numeric) VM id was given.")
 
 if __name__ == '__main__':
 	# Don't run as anyone but SYSTEM_USER:SYSTEM_GROUP!
