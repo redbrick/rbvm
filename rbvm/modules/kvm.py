@@ -9,6 +9,8 @@ import time
 import datetime
 import cherrypy
 import socket
+
+from rbvm.errors import *
 from rbvm.model.database import *
 import rbvm.lib.sqlalchemy_tool as database
 import rbvm.lib.ptree as ptree
@@ -16,13 +18,28 @@ import rbvm.config as config
 
 # KVM abstraction layer
 
+def get_vm(vm_id, session=database.session):
+	"""
+	Returns a VM object with the corresponding identifier
+	"""
+	if session is None:
+		raise MissingDatabaseSessionError
+	
+	vm_id = int(vm_id)
+	vm = session.query(VirtualMachine).filter(VirtualMachine.id==vm_id).first()
+	return vm
+
+def change_vm_name(vm_object, name, session=database.session):
+	vm_object.name = name
+	session.commit()
+
 def create_vm(vm_properties, session=database.session, print_output=False):
 	"""
 	Creates a virtual machine
 	"""
 	
 	if session is None:
-		raise "No database session present"
+		raise MissingDatabaseSessionError
 	
 	user = session.query(User).filter(User.username==vm_properties.username).first()
 	
