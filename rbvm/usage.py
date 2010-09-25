@@ -5,6 +5,7 @@ usage['index'] = """
 rbvmctl is the rbvm command line utility. Any of the following subcommands
 will work:
 
+    changeip        Changes the IP assigned to a VM.
     changename      Changes the name of a VM.
     listusers       Displays a list of users.
     listvms         Displays a list of virtual machines.
@@ -36,7 +37,8 @@ The following columns are given:
                     host system. If the VM is powered off, this is the PID
                     that was set the last time the VM ran.
 
-There are no extra arguments or options for this command.
+The showip argument can be given to show an extra column giving the assigned
+IP addresses on each VM.
 """
 
 usage['resetpw'] = """
@@ -67,10 +69,26 @@ usage['changename'] = """
 The changename command allows a VM name to be changed.
 
 The changename command requires two arguments. The first is the VM ID number,
-as shown in the output as listvms. The second is the new name for the VM.
+as shown in the output of listvms. The second is the new name for the VM.
 For example:
 
 rbvmctl changename 1 "New name"
 
 will change the name of VM 1 to "new name".
+"""
+
+usage['changeip'] = """
+The changeip command allows a VM IP address to be changed.
+
+The changeip command requires two arguments. The first is the VM ID number,
+as shown in the output of listvms. The second is the new name for the VM.
+For example:
+
+rbvmctl changeip 1 192.168.0.10
+
+will change the assigned IP address of VM 1 to 192.168.0.10.
+
+The command will object if you try to assign an IP that has been taken by
+another virtual machine. To continue in spite of these objections, use the
+force (-f, or --force) option.
 """

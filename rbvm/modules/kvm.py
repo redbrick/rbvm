@@ -18,6 +18,35 @@ import rbvm.config as config
 
 # KVM abstraction layer
 
+def set_assigned_ip(vm_object, new_ip, force=False, session=database.session, commit=True):
+	"""
+	Allows a VM's assigned IP address to be set.
+	"""
+	print "IP assignment requested, checking previous allocations"
+	conflict = True
+	try:
+		other_vm = session.query(VirtualMachine).filter(VirtualMachine.assigned_ip==new_ip).first()
+		assert other_vm is not None
+	except Exception,e:
+		print str(e)
+		print "No conflict found"
+		conflict = False
+	
+	if conflict is True:
+		print "***************************************************************************"
+		print " WARNING: IP allocation conflict! The IP requested is already allocated!"
+		print "***************************************************************************"
+		if force is False:
+			print "Aborting. Please specify -f or --force if you wish to continue anyway."
+			return
+		else:
+			print "Apparently you want to force this, continuing (even though it's stupid)."
+	
+	vm_object.assigned_ip = new_ip
+	if commit:
+		session.commit()
+		
+	
 def get_vm(vm_id, session=database.session):
 	"""
 	Returns a VM object with the corresponding identifier
@@ -30,6 +59,9 @@ def get_vm(vm_id, session=database.session):
 	return vm
 
 def change_vm_name(vm_object, name, session=database.session):
+	"""
+	Allows a VM's name to be changed.
+	"""
 	vm_object.name = name
 	session.commit()
 
@@ -68,26 +100,11 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 		
 		mac_address = "%02X:%02X:%02X:%02X:%02X:%02X" % (a,b,c,d,e,f)
 	
+	vm_name = "VM created at %s" % (datetime.datetime.now().isoformat())
+	
+	vm = VirtualMachine(vm_name, user)
 	if vm_properties.ip is not None:
-		
-		print "IP specified, checking previous allocations"
-		conflict = True
-		try:
-			other_vm = session.query(VirtualMachine).filter(VirtualMachine.assigned_ip==vm_properties.ip).first()
-			assert other_vm is not None
-		except Exception,e:
-			print str(e)
-			print "No conflict found"
-			conflict = False
-		if conflict is True:
-			print "***************************************************************************"
-			print " WARNING: IP allocation conflict! The IP requested is already allocated!"
-			print "***************************************************************************"
-			if vm_properties.force is False:
-				print "Aborting. Pleae specify -f or --force if you wish to continue anyway."
-				return
-			else:
-				print "Apparently you want to force this, continuing (even though it's stupid)."
+		set_assigned_ip(vm, vm_properties.ip, force=vm_properties.force, commit=False)
 	
 	print "Creating virtual machine..."
 	print "VM Properties:"
@@ -127,8 +144,8 @@ def create_vm(vm_properties, session=database.session, print_output=False):
 	
 	print "Disk image created. Adding VM entry to database."
 	
-	vm_name = "VM created at %s" % (datetime.datetime.now().isoformat())
-	vm = VirtualMachine(vm_name, user)
+	
+	
 	vm.memory = ram_size
 	vm.cpu_cores = cpu_cores
 	vm.mac_address = mac_address
