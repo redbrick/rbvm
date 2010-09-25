@@ -1,11 +1,11 @@
-# The next few variables are help strings for the "help" command. How
-# interesting.
+
 usage = {}
 
 usage['index'] = """
 rbvmctl is the rbvm command line utility. Any of the following subcommands
 will work:
 
+    changename      Changes the name of a VM.
     listusers       Displays a list of users.
     listvms         Displays a list of virtual machines.
     showvm          Displays detailed information on a virtual machine.
@@ -61,4 +61,16 @@ usage['showvm'] = """
 Displays detailed technical information on a virtual machine. The showvm
 command requires an argument specifying the numeric identifier associated
 with the VM. To get a list of identifiers, use the listvms command.
+"""
+
+usage['changename'] = """
+The changename command allows a VM name to be changed.
+
+The changename command requires two arguments. The first is the VM ID number,
+as shown in the output as listvms. The second is the new name for the VM.
+For example:
+
+rbvmctl changename 1 "New name"
+
+will change the name of VM 1 to "new name".
 """

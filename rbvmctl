@@ -9,6 +9,7 @@ import smtplib
 import string
 import random
 import sys
+import traceback
 from optparse import OptionParser
 
 import rbvm.config as config
@@ -36,9 +37,22 @@ def main():
 	
 	try:
 		func = commands[args[0]]
-		func(session, args[1:])
 	except KeyError:
 		parser.error("an invalid command was specified")
+	
+	try:
+		func(session, args[1:])
+	except Exception, e:
+		exc_type, exc_value, exc_traceback = sys.exc_info()
+		if options.verbose:
+			print "An error occurred. You specified verbose mode, so here's the traceback:"
+			traceback.print_tb(exc_traceback)
+			print
+			print "And the exception itself:"
+			print "%s: %s" % (repr(exc_type), repr(exc_value))
+		else:
+			print "An error occurred. Use verbose mode (-v) to print a traceback next time."
+		sys.exit(1)
 
 if __name__ == '__main__':
 	# Don't run as anyone but SYSTEM_USER:SYSTEM_GROUP!

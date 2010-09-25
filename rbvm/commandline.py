@@ -32,7 +32,7 @@ def showvm(session, args):
 		print "Invalid VM identifier"
 		sys.exit(1)
 	
-	vm = session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
+	vm = vmmon.get_vm(id, session=session)
 	if vm is None:
 		print "Could not find VM."
 		sys.exit(1)
@@ -88,10 +88,7 @@ def resetpw(session, args):
 	"""
 	Resets a user's password
 	"""
-	try:
-		username = args[0]
-	except:
-		print "Invalid or missing username"
+	username = args[0]
 	
 	password = "".join(random.sample(string.letters + string.digits,8))
 	user = session.query(User).filter(User.username==username).first()
@@ -108,10 +105,23 @@ def resetpw(session, args):
 	s.sendmail(config.EMAIL_ADDRESS, user.email_address, "From: %s\nTo: %s\nSubject: Your VM account password has been reset\n\nYour VM account password has been reset. The new password is:\n\n%s\n\nRegards,\n-Automated mailing monkey" % (config.EMAIL_ADDRESS, user.email_address, password))
 	s.quit()
 
+def changename(session, args):
+	"""
+	Allows a VM's name to be changed.
+	"""
+	vm_id = args[0]
+	int(vm_id)
+	vm = rbvm.vmmon.get_vm(vm_id, session=session)
+	
+	name = args[1]
+	rbvm.vmmon.change_vm_name(vm, name, session=session)
+	print "VM name changed to %s" % name
+	
 commands = {
 	'listusers': listusers,
 	'listvms': listvms,
 	'help': help,
 	'showvm': showvm,
 	'resetpw': resetpw,
+	'changename': changename,
 }
