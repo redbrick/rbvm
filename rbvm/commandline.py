@@ -8,7 +8,7 @@ import rbvm.config as config
 import rbvm.vmmon
 import rbvm.usage
 
-def help(session, args):
+def help(session, args, force):
 	"""
 	Displays help
 	"""
@@ -22,7 +22,7 @@ def help(session, args):
 	else:
 		print rbvm.usage.usage[key]
 
-def showvm(session, args):
+def showvm(session, args, force):
 	"""
 	Outputs detailed information on a VM.
 	"""
@@ -32,7 +32,7 @@ def showvm(session, args):
 		print "Invalid VM identifier"
 		sys.exit(1)
 	
-	vm = vmmon.get_vm(id, session=session)
+	vm = rbvm.vmmon.get_vm(id, session=session)
 	if vm is None:
 		print "Could not find VM."
 		sys.exit(1)
@@ -57,7 +57,7 @@ def showvm(session, args):
 	print format % ("Boot device", "CD drive" if vm.boot_device == 'd' else "Hard disk")
 	print format % ("Current status", "Powered on" if status_boolean is True else "Powered off")
 
-def listusers(session, args):
+def listusers(session, args, force):
 	"""
 	Outputs a list of users in tabular format
 	"""
@@ -67,14 +67,24 @@ def listusers(session, args):
 	for user in users:
 		print "%-10s | %s" % (user.username, user.email_address)
 
-def listvms(session, args):
+def listvms(session, args, force):
 	"""
 	Outputs a list of VMs in tabular format
 	"""
 	vms = session.query(VirtualMachine).all()
 	print "Note: PID is the last known pid; ignore this field if the VM is powered off."
+	print
+	header_format = "%-5s | %-35s | %-10s | %-6s | %6s"
+	line_format = "%5i | %-35.35s | %-10s | %-6s | %6s"
+	header_tup_end = ()
+	showips = False
+	if len(args) > 0 and args[0] == 'showips':
+		showips = True
+		header_format = header_format + " | %s"
+		header_tup_end = ('Assigned IP',)
+		line_format = line_format + " | %s"
 	
-	print "%-5s | %-35s | %-10s | %-6s | %6s" % ("ID","VM name","Username","Status","PID")
+	print header_format % (("ID","VM name","Username","Status","PID") + header_tup_end)
 	for vm in vms:
 		owner = session.query(User).filter(User.id==vm.user_id).one()
 		status_boolean = rbvm.vmmon.check_vm_status(vm)
@@ -82,9 +92,14 @@ def listvms(session, args):
 		if status_boolean is True:
 			status = "On"
 		
-		print "%5i | %-35.35s | %-10s | %-6s | %6i" % (vm.id, vm.name, owner.username, status, vm.pid)
+		line_tup = (vm.id, vm.name, owner.username, status, str(vm.pid))
+		
+		if showips:
+			line_tup = line_tup + (str(vm.assigned_ip),)
+		
+		print line_format % line_tup
 
-def resetpw(session, args):
+def resetpw(session, args, force):
 	"""
 	Resets a user's password
 	"""
@@ -105,7 +120,7 @@ def resetpw(session, args):
 	s.sendmail(config.EMAIL_ADDRESS, user.email_address, "From: %s\nTo: %s\nSubject: Your VM account password has been reset\n\nYour VM account password has been reset. The new password is:\n\n%s\n\nRegards,\n-Automated mailing monkey" % (config.EMAIL_ADDRESS, user.email_address, password))
 	s.quit()
 
-def changename(session, args):
+def changename(session, args, force):
 	"""
 	Allows a VM's name to be changed.
 	"""
@@ -116,7 +131,19 @@ def changename(session, args):
 	name = args[1]
 	rbvm.vmmon.change_vm_name(vm, name, session=session)
 	print "VM name changed to %s" % name
+
+def changeip(session, args, force):
+	"""
+	Allows a VM's assigned IP to be changed.
+	"""
+	vm_id = args[0]
+	ip = args[1]
+	int(vm_id)
 	
+	vm = rbvm.vmmon.get_vm(vm_id, session=session)
+	rbvm.vmmon.set_assigned_ip(vm, ip, force=force, session=session, commit=True)
+	print "VM IP changed to %s" % ip
+
 commands = {
 	'listusers': listusers,
 	'listvms': listvms,
@@ -124,4 +151,5 @@ commands = {
 	'showvm': showvm,
 	'resetpw': resetpw,
 	'changename': changename,
+	'changeip': changeip,
 }
