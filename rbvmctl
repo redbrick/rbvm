@@ -1,14 +1,7 @@
 #!/usr/bin/python2.6
-# This is boring, somewhat nasty procedural code. Most of the fun bits
-# are outsourced to other modules (in the data model, etc). This all just
-# deals with user interaction.
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from rbvm.model.database import *
-import rbvm.config as config
-import rbvm.vmmon
-
 import os
 import grp
 import pwd
@@ -18,166 +11,10 @@ import random
 import sys
 from optparse import OptionParser
 
-session = None
+import rbvm.config as config
+from rbvm.commandline import *
 
-# The next few variables are help strings for the "help" command. How
-# interesting.
-HELP_INDEX = """
-rbvmctl is the rbvm command line utility. Any of the following subcommands
-will work:
-
-    listusers       Displays a list of users.
-    listvms         Displays a list of virtual machines.
-    showvm          Displays detailed information on a virtual machine.
-    resetpw         Allows a user's password to be reset.
-    help            Displays help information.
-
-To get more information on a specific item, run 'rbvmctl help topicname',
-where topicname is one of the commands listed above.
-"""
-
-HELP_LISTUSERS = """
-The listusers command will display a table of users registered with the
-system, and their email addresses. There are no extra arguments or options
-for this command.
-"""
-
-HELP_LISTVMS = """
-The listvms command will display a table of virtual machines on the system.
-The following columns are given:
-
-    ID              A unique numeric identifier given to each VM.
-    VM name         A descriptive name given to a VM. This may be modified by
-                    the user through the web interface.
-    Username        The username of the user to whom this VM belongs.
-    Status          The current detected status (powered on or powerd off) of
-                    this VM.
-    PID             The last known process ID of this virtual machine on the
-                    host system. If the VM is powered off, this is the PID
-                    that was set the last time the VM ran.
-
-There are no extra arguments or options for this command.
-"""
-
-HELP_RESETPW = """
-The resetpw command allows a user's password to be reset. The new password
-will be generated at random and will automatically be emailed to the address
-associated with that user in the database. Use the listusers command to view
-the information on file for each user.
-
-The resetpw command requires an argument specifying the username of the user
-whose password is to be reset. For example:
-
-rbvmctl resetpw bob
-
-will reset the password for the user 'bob'.
-"""
-
-HELP_HELP = """
-Are you serious?
-"""
-
-HELP_SHOWVM = """
-Displays detailed technical information on a virtual machine. The showvm
-command requires an argument specifying the numeric identifier associated
-with the VM. To get a list of identifiers, use the listvms command.
-"""
-
-def help(args):
-	"""
-	Displays help
-	"""
-	if len(args) < 2:
-		print HELP_INDEX
-	elif args[1] == 'listusers':
-		print HELP_LISTUSERS
-	elif args[1] == 'listvms':
-		print HELP_LISTVMS
-	elif args[1] == 'resetpw':
-		print HELP_RESETPW
-	elif args[1] == 'help':
-		print HELP_HELP
-	elif args[1] == 'showvm':
-		print HELP_SHOWVM
-
-def showvm(id):
-	"""
-	Outputs detailed information on a VM.
-	"""
-	vm = session.query(VirtualMachine).filter(VirtualMachine.id==id).first()
-	if vm is None:
-		print "Could not find VM."
-		sys.exit(1)
-	
-	owner = session.query(User).filter(User.id==vm.user_id).one()
-	status_boolean = rbvm.vmmon.check_vm_status(vm)
-	
-	format = "%20s : %s"
-	print format % ("ID", str(vm.id))
-	print format % ("Name", str(vm.name))
-	print format % ("Username", str(owner.username))
-	print format % ("Last known PID", str(vm.pid))
-	print format % ("CPU cores",str(vm.cpu_cores))
-	print format % ("Last launch", str(vm.last_launch))
-	print format % ("Assigned IP", str(vm.assigned_ip))
-	print format % ("MAC address", str(vm.mac_address))
-	print format % ("NIC device setting", str(vm.nic_device))
-	print format % ("HPET", "Enabled" if vm.hpet else "Disabled")
-	print format % ("ACPI", "Enabled" if vm.acpi else "Disabled")
-	print format % ("KVM IRQ chip", "Disabled" if vm.no_kvm_irqchip else "Enabled") # daargh, double negatives
-	print format % ("VGA device setting", str(vm.vga_device))
-	print format % ("Boot device", "CD drive" if vm.boot_device == 'd' else "Hard disk")
-	print format % ("Current status", "Powered on" if status_boolean is True else "Powered off")
-
-def listusers():
-	"""
-	Outputs a list of users in tabular format
-	"""
-	users = session.query(User).all()
-	print "%-10s | %s" % ("Username","Email address")
-	
-	for user in users:
-		print "%-10s | %s" % (user.username, user.email_address)
-
-def listvms():
-	"""
-	Outputs a list of VMs in tabular format
-	"""
-	vms = session.query(VirtualMachine).all()
-	print "Note: PID is the last known pid; ignore this field if the VM is powered off."
-	
-	print "%-5s | %-35s | %-10s | %-6s | %6s" % ("ID","VM name","Username","Status","PID")
-	for vm in vms:
-		owner = session.query(User).filter(User.id==vm.user_id).one()
-		status_boolean = rbvm.vmmon.check_vm_status(vm)
-		status = "Off"
-		if status_boolean is True:
-			status = "On"
-		
-		print "%5i | %-35.35s | %-10s | %-6s | %6i" % (vm.id, vm.name, owner.username, status, vm.pid)
-
-def resetpw(username):
-	"""
-	Resets a user's password
-	"""
-	password = "".join(random.sample(string.letters + string.digits,8))
-	user = session.query(User).filter(User.username==username).first()
-	if user is None:
-		print "User %s not found." % username
-		sys.exit(1)
-	
-	user.set_password(password)
-	session.commit()
-	print "Password for user %s has been changed to: %s" % (username, password)
-	print "Emailing user at %s" % user.email_address
-	s = smtplib.SMTP()
-	s.connect()
-	s.sendmail(config.EMAIL_ADDRESS, user.email_address, "From: %s\nTo: %s\nSubject: Your VM account password has been reset\n\nYour VM account password has been reset. The new password is:\n\n%s\n\nRegards,\n-Automated mailing monkey" % (config.EMAIL_ADDRESS, user.email_address, password))
-	s.quit()
-
-def main():
-	global session
-	
+def main():	
 	usage = "usage: %prog command [options]"
 	parser = OptionParser(usage=usage)
 	
@@ -197,23 +34,11 @@ def main():
 	if options.verbose:
 		print "Done"
 	
-	if args[0] == 'listusers':
-		listusers()
-	elif args[0] == 'listvms':
-		listvms()
-	elif args[0] == 'resetpw':
-		if len(args) < 2:
-			parser.error("the resetpw command requires the username as a second argument.")
-		resetpw(args[1])
-	elif args[0] == 'help':
-		help(args)
-	elif args[0] == 'showvm':
-		if len(args) < 2:
-			parser.error("the showvm command requires the VM ID number as a second argument.")
-		try:
-			showvm(int(args[1]))
-		except ValueError:
-			parser.error("an invalid (non-numeric) VM id was given.")
+	try:
+		func = commands[args[0]]
+		func(session, args[1:])
+	except KeyError:
+		parser.error("an invalid command was specified")
 
 if __name__ == '__main__':
 	# Don't run as anyone but SYSTEM_USER:SYSTEM_GROUP!
