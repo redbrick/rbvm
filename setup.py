@@ -27,6 +27,7 @@ setup(name = 'rbvm',
 			'rbvm-createvm',
 			'rbvm-createuser',
 			'rbvm-installdb',
+			'rbvmctl',
 			'rbvmwebd'
 		]),
 		('/usr/share/rbvm/static',[
