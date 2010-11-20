@@ -9,7 +9,7 @@ XS-Python-Version: >= 2.6
 
 Package: rbvm
 Architecture: any
-Depends: adduser, qemu-kvm, uml-utilities, bridge-utils, python-sqlalchemy, python-cherrypy3, python-genshi, ${python:Depends}, ${misc:Depends}
+Depends: sudo, adduser, qemu-kvm, uml-utilities, bridge-utils, python-sqlalchemy, python-cherrypy3, python-genshi, ${python:Depends}, ${misc:Depends}
 XB-Python-Version: ${python:Versions}
 Description: The Redbrick VM Management software
  Provides a web interface for managing virtual machines, originally intended
