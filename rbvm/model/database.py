@@ -1,3 +1,4 @@
+# coding=utf-8
 import sqlalchemy
 import random
 import string
@@ -154,6 +155,50 @@ class VirtualMachine(Base):
         self.user_id = user.id
     
     # }}}
+
+
+"""
+Which users may add or remove VMs from a given VLAN.
+"""
+user_admin_vlan = Table('user_admin_vlan', Base.metadata,
+    Column('user_id',Integer,ForeignKey('user_table.id')),
+    Column('vlan_id',Integer,ForeignKey('vlan.id'))
+)
+
+"""
+Which user groups may add or remove VMs from a given VLAN.
+"""
+group_admin_vlan = Table('group_admin_vlan', Base.metadata,
+    Column('user_id',Integer,ForeignKey('group_table.id')),
+    Column('vlan_id',Integer,ForeignKey('vlan.id'))
+)
+
+"""
+Virtual machine <-> VLAN relationships
+"""
+vm_vlan = Table('vm_vlan',Base.metadata,
+    Column('vm_id',Integer,ForeignKey('virtual_machine.id')),
+    Column('vlan_id',Integer,ForeignKey('vlan.id'))
+)
+
+class Vlan(Base):
+    """
+    A VLAN
+    """
+    __tablename__ = 'vlan'
+    
+    id = Column(Integer, Sequence('vlan_id_seq'), primary_key=True)
+    system_identifier = Column(String(1024),unique=True) # The system identifier for this vlan. For example, 'br1' for a linux bridge backend. Has a crazily long size in case we ever port to something nuts like windows, which will probably want a GUID code for an identifier.
+    
+    virtual_machines = relation('VirtualMachine',secondary=vm_vlan,backref='vlans')
+    admin_users = relation('User',secondary=user_admin_vlan,backref='adminned_vlan')
+    admin_groups = relation('Group',secondary=group_admin_vlan,backref='adminned_vlans')
+    
+    def __repr__(self):
+        return "<Vlan(%i,'%s')>" % (self.id, self.system_identifier)
+    
+    def __init__(self, system_identifier):
+        self.system_identifier = system_identifier
 
 class OneTimeToken(Base):
     """
