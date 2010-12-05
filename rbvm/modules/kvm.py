@@ -467,7 +467,7 @@ def power_on(vm_object):
 			break
 	
 	if pid is None:
-		raise "Could not find PID of child process"
+		raise VMStartupError("Could not find PID of child process")
 	
 	monitor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	monitor_socket.connect((config.IO_LISTEN_ADDRESS, monitor_tcp_port))
