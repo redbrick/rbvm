@@ -16,6 +16,9 @@ import rbvm.lib.sqlalchemy_tool as database
 import rbvm.lib.ptree as ptree
 import rbvm.config as config
 
+# This is a VM monitor control module.
+MODULE_TYPE = 'vmmon'
+
 # KVM abstraction layer
 
 def set_assigned_ip(vm_object, new_ip, force=False, session=database.session, commit=True):
