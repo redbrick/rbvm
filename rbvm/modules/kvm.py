@@ -45,8 +45,8 @@ def set_assigned_ip(vm_object, new_ip, force=False, session=database.session, co
     vm_object.assigned_ip = new_ip
     if commit:
         session.commit()
-        
-    
+
+
 def get_vm(vm_id, session=database.session):
     """
     Returns a VM object with the corresponding identifier
@@ -58,12 +58,14 @@ def get_vm(vm_id, session=database.session):
     vm = session.query(VirtualMachine).filter(VirtualMachine.id==vm_id).first()
     return vm
 
+
 def change_vm_name(vm_object, name, session=database.session):
     """
     Allows a VM's name to be changed.
     """
     vm_object.name = name
     session.commit()
+
 
 def create_vm(vm_properties, session=database.session, print_output=False):
     """
@@ -162,6 +164,7 @@ def create_vm(vm_properties, session=database.session, print_output=False):
     
     print "Complete"
 
+
 def check_vm_status(vm_object):
     """
     Checks whether or not a VM is running. This is achieved by checking the 
@@ -169,10 +172,10 @@ def check_vm_status(vm_object):
     information in /proc.
     """
     assert vm_object is not None
-
+    
     known_pid = vm_object.pid
     last_launch = vm_object.last_launch
-
+    
     if known_pid is None or last_launch is None:
         return False # missing data, so it's probably not running
     
@@ -194,6 +197,7 @@ def check_vm_status(vm_object):
     else:
         return True # all checks pass, the vm seems to be running
 
+
 def get_monitor_socket(vm_object):
     """
     Returns a TCP stream socket connected to the VM's monitor.
@@ -205,6 +209,7 @@ def get_monitor_socket(vm_object):
     monitor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     monitor_socket.connect((config.IO_LISTEN_ADDRESS, monitor_tcp_port))
     return monitor_socket
+
 
 def get_serial_socket(vm_object):
     """
@@ -219,6 +224,7 @@ def get_serial_socket(vm_object):
     serial_socket.connect((config.IO_LISTEN_ADDRESS, serial_tcp_port))
     return serial_socket
 
+
 def get_parallel_socket(vm_object):
     """
     Returns a TCP stream socket connected to the VM's parallel
@@ -231,6 +237,7 @@ def get_parallel_socket(vm_object):
     parallel_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     parallel_socket.connect((config.IO_LISTEN_ADDRESS, parallel_tcp_port))
     return parallel_socket
+
 
 def list_block_devices(vm_object):
     """
@@ -256,6 +263,7 @@ def list_block_devices(vm_object):
     
     return devices
 
+
 def set_boot_device(vm_object,boot_list):
     """
     Sets the boot device of a VM
@@ -268,6 +276,7 @@ def set_boot_device(vm_object,boot_list):
     monitor_socket.send("boot_set %s\n" % boot_list)
     monitor_socket.recv(4096)
     monitor_socket.close()
+
 
 def mount_iso(vm_object, iso_name):
     """
@@ -292,6 +301,7 @@ def mount_iso(vm_object, iso_name):
     monitor_socket.recv(4096)
     monitor_socket.close()
 
+
 def reset_vm(vm_object):
     """
     Verify that a VM is powered on, and reset it
@@ -305,6 +315,7 @@ def reset_vm(vm_object):
     monitor_socket.send(monitor_cmd)
     monitor_socket.recv(4096)
     monitor_socket.close()
+
 
 def power_off(vm_object):
     """
@@ -322,6 +333,7 @@ def power_off(vm_object):
         monitor_socket.close()
     except:
         pass
+
 
 def power_on(vm_object):
     """
@@ -409,7 +421,7 @@ def power_on(vm_object):
     assert vm_object.id + 5900 != serial_tcp_port
     assert no_kvm_irqchip_param is True or no_kvm_irqchip_param is False
     assert acpi_param is True or acpi_param is False
-
+    
     # Generate vnc password:
     vnc_password = "".join(random.sample(string.letters + string.digits,8))
     
@@ -488,3 +500,4 @@ def power_on(vm_object):
         database.session.commit()
     
     return vnc_password
+
