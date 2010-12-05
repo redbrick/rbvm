@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
-	<xi:include href="base.html" />
-	<head>
-		<title>Change ACPI setting</title>
-	</head>
-	<body>
-		<h1>Change ACPI setting</h1>
-		<p py:if="error is None">The ACPI setting has changed. This will not take effect until the next time that you power on the VM. Click <a href="/manage?id=${vm.id}">here</a> to return to the management screen.</p>
-	</body>
+    <xi:include href="base.html" />
+    <head>
+        <title>Change ACPI setting</title>
+    </head>
+    <body>
+        <h1>Change ACPI setting</h1>
+        <p py:if="error is None">The ACPI setting has changed. This will not take effect until the next time that you power on the VM. Click <a href="/manage?id=${vm.id}">here</a> to return to the management screen.</p>
+    </body>
 </html>

@@ -20,28 +20,28 @@ set -e
 
 case "$1" in
     configure)
-	     # adduser trick stolen from hal postinst script, so I assume its somewhat correct
+         # adduser trick stolen from hal postinst script, so I assume its somewhat correct
         adduser --system \
-		          --quiet \
-					 --disabled-password \
-					 --no-create-home \
-					 --home "/var/lib/rbvm" \
+                  --quiet \
+                     --disabled-password \
+                     --no-create-home \
+                     --home "/var/lib/rbvm" \
                 --gecos "Redbrick VM Management" \
-					 --group \
-					 rbvm
+                     --group \
+                     rbvm
         
-		  if [ ! -d /var/lib/rbvm/iso ]; then
-		      /bin/mkdir -p /var/lib/rbvm/iso
-		  fi
-		  if [ ! -d /var/lib/rbvm/images ]; then
-		      /bin/mkdir -p /var/lib/rbvm/images
-		  fi
-		  if [ ! -d /var/log/rbvm ]; then
-		      /bin/mkdir -p /var/log/rbvm
-		  fi
-		  /bin/chown -R rbvm:rbvm /var/log/rbvm
+          if [ ! -d /var/lib/rbvm/iso ]; then
+              /bin/mkdir -p /var/lib/rbvm/iso
+          fi
+          if [ ! -d /var/lib/rbvm/images ]; then
+              /bin/mkdir -p /var/lib/rbvm/images
+          fi
+          if [ ! -d /var/log/rbvm ]; then
+              /bin/mkdir -p /var/log/rbvm
+          fi
+          /bin/chown -R rbvm:rbvm /var/log/rbvm
         /bin/chown -R rbvm:rbvm /var/lib/rbvm
-	 ;;
+     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
     ;;

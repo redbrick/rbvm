@@ -7,19 +7,19 @@ from optparse import OptionParser
 import rbvm.config as config
 
 if __name__ == '__main__':
-	# Don't run as anyone but SYSTEM_USER:SYSTEM_GROUP!
-	correct_gid = grp.getgrnam(config.SYSTEM_GROUP)[2]
-	if os.getgid() != correct_gid:
-		os.setgroups([correct_gid])
-		os.setregid(correct_gid,correct_gid)
+    # Don't run as anyone but SYSTEM_USER:SYSTEM_GROUP!
+    correct_gid = grp.getgrnam(config.SYSTEM_GROUP)[2]
+    if os.getgid() != correct_gid:
+        os.setgroups([correct_gid])
+        os.setregid(correct_gid,correct_gid)
 
-	correct_uid = pwd.getpwnam(config.SYSTEM_USERNAME)[2]
-	if os.getuid() != correct_uid:
-		os.setreuid(correct_uid,correct_uid)
-	
-	parser = OptionParser()
-	parser.add_option('-c','--clear',action='store_true',default=False,help='drop all tables before installing')
+    correct_uid = pwd.getpwnam(config.SYSTEM_USERNAME)[2]
+    if os.getuid() != correct_uid:
+        os.setreuid(correct_uid,correct_uid)
+    
+    parser = OptionParser()
+    parser.add_option('-c','--clear',action='store_true',default=False,help='drop all tables before installing')
 
-	options, args = parser.parse_args()
-	rbvm.setup.install(drop_all=options.clear)
+    options, args = parser.parse_args()
+    rbvm.setup.install(drop_all=options.clear)
 

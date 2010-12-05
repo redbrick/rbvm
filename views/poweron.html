@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org">
-	<xi:include href="base.html" />
-	<head>
-		<title>Power On VM</title>
-	</head>
-	<body>
-		<h1>VM Power On</h1>
-		<p py:if="message">${message}</p>
-		<py:if test="vnc_password and vm and hostname and vnc_port">
-		<p><b>To connect to your virtual machine's VNC server:</b></p>
-		<ol><li>Connect to redbrick, SSH forwarding port 5900 to ${hostname}:${vnc_port}: <pre>ssh -L 5900:${hostname}:${vnc_port} username@login.redbrick.dcu.ie</pre></li>
-		<li>Open your VNC client, and connect to localhost display 0 (or port 5900).</li>
-		<li>Enter the following password when prompted: <b>${vnc_password}</b></li>
-		<li><span style="color : #f00;background-color : transparent">Keep this password in a safe place. It will be valid while your VM is running, and it will not be displayed to you again after this point. To reset it, you'll have to power off and power on your virtual machine from this web interface.</span></li>
-		</ol>
-		<p>Click <a href="/manage?id=${vm.id}">here</a> to return to the VM management screen.</p>
-		</py:if>
-	</body>
+    <xi:include href="base.html" />
+    <head>
+        <title>Power On VM</title>
+    </head>
+    <body>
+        <h1>VM Power On</h1>
+        <p py:if="message">${message}</p>
+        <py:if test="vnc_password and vm and hostname and vnc_port">
+        <p><b>To connect to your virtual machine's VNC server:</b></p>
+        <ol><li>Connect to redbrick, SSH forwarding port 5900 to ${hostname}:${vnc_port}: <pre>ssh -L 5900:${hostname}:${vnc_port} username@login.redbrick.dcu.ie</pre></li>
+        <li>Open your VNC client, and connect to localhost display 0 (or port 5900).</li>
+        <li>Enter the following password when prompted: <b>${vnc_password}</b></li>
+        <li><span style="color : #f00;background-color : transparent">Keep this password in a safe place. It will be valid while your VM is running, and it will not be displayed to you again after this point. To reset it, you'll have to power off and power on your virtual machine from this web interface.</span></li>
+        </ol>
+        <p>Click <a href="/manage?id=${vm.id}">here</a> to return to the VM management screen.</p>
+        </py:if>
+    </body>
 </html>

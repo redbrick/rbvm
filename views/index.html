@@ -1,38 +1,38 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
-	<xi:include href="base.html" />
-	<head>
-		<title>Dashboard</title>
-	</head>
-	<body>
-		<h1>Dashboard</h1>
-		
+    <xi:include href="base.html" />
+    <head>
+        <title>Dashboard</title>
+    </head>
+    <body>
+        <h1>Dashboard</h1>
+        
 
-		<div>
-			<h2>Virtual Machines</h2>
-			<table class="vm_list">
-				<tr>
-					<th>VM Name</th>
-					<th>RAM</th>
-					<th>MAC Address</th>
-					<th>Assigned IP</th>
-					<th>Status</th>
-					<th>Actions</th>
-				</tr>
-				<py:for each="vm in vms">
-					<tr>
-						<td>${vm.name}</td>
-						<td>${vm.memory}MB</td>
-						<td>${vm.mac_address}</td>
-						<td>${str(vm.assigned_ip)}</td>
-						<td><py:if test="vm.status is True">Powered On</py:if><py:if test="vm.status is False">Powered Off</py:if></td>
-						<td>
-							<form action="/manage" method="GET"><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Manage" /></form>
-						</td>
-					</tr>
-				</py:for>
-			</table>
-		</div>
-	
-	</body>
+        <div>
+            <h2>Virtual Machines</h2>
+            <table class="vm_list">
+                <tr>
+                    <th>VM Name</th>
+                    <th>RAM</th>
+                    <th>MAC Address</th>
+                    <th>Assigned IP</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                <py:for each="vm in vms">
+                    <tr>
+                        <td>${vm.name}</td>
+                        <td>${vm.memory}MB</td>
+                        <td>${vm.mac_address}</td>
+                        <td>${str(vm.assigned_ip)}</td>
+                        <td><py:if test="vm.status is True">Powered On</py:if><py:if test="vm.status is False">Powered Off</py:if></td>
+                        <td>
+                            <form action="/manage" method="GET"><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Manage" /></form>
+                        </td>
+                    </tr>
+                </py:for>
+            </table>
+        </div>
+    
+    </body>
 </html>
