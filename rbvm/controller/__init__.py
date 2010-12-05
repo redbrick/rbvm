@@ -127,6 +127,7 @@ class Root:
         database.session.commit()
         return template.render(user=user,token=out_token)
     
+    
     @cherrypy.expose
     @require_login
     @verify_token
@@ -143,6 +144,7 @@ class Root:
         database.session.commit()
         return template.render(error=None)
     
+    
     @cherrypy.expose
     @require_login
     @template.output('changepassword.html')
@@ -156,6 +158,7 @@ class Root:
         database.session.commit()
         
         return template.render(user=user,token=out_token)
+    
     
     @cherrypy.expose
     @require_login
@@ -191,6 +194,7 @@ class Root:
         database.session.commit()
         return template.render(error=None)
     
+    
     @cherrypy.expose
     @require_login
     @verify_token
@@ -217,6 +221,7 @@ class Root:
         vm_object.name = new_name
         database.session.commit()
         return template.render(error=None)
+    
     
     @cherrypy.expose
     @require_login
@@ -248,6 +253,7 @@ class Root:
         vm_object.boot_device = boot_order
         database.session.commit()
         return template.render(error=None,vm=vm_object)
+    
     
     @cherrypy.expose
     @require_login
@@ -339,6 +345,7 @@ class Root:
         
         database.session.commit()
         return template.render(error=None,vm=vm_object)
+    
     
     
     @cherrypy.expose
