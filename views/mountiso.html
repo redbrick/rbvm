@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
-	<xi:include href="base.html" />
-	<head>
-		<title>Mount an ISO</title>
-	</head>
-	<body>
-		<h1>Mount an ISO</h1>
-		<p py:if="vm">Virtual machine: ${vm.name}</p>
-		<p>Select an ISO from the following library:</p>
-		<form action="/domountiso" py:if="iso_list is not None and token is not None" method="POST">
-			<input type="hidden" name="token" value="${token.token}" />
-			<input type="hidden" name="id" value="${vm.id}" />
-			<select name="iso">
-				<py:for each="iso_name in iso_list">
-					<option value="${iso_name}">${iso_name}</option>
-				</py:for>
-			</select>
-			<input type="submit" value="Mount ISO" />
-		</form>
-	</body>
+    <xi:include href="base.html" />
+    <head>
+        <title>Mount an ISO</title>
+    </head>
+    <body>
+        <h1>Mount an ISO</h1>
+        <p py:if="vm">Virtual machine: ${vm.name}</p>
+        <p>Select an ISO from the following library:</p>
+        <form action="/domountiso" py:if="iso_list is not None and token is not None" method="POST">
+            <input type="hidden" name="token" value="${token.token}" />
+            <input type="hidden" name="id" value="${vm.id}" />
+            <select name="iso">
+                <py:for each="iso_name in iso_list">
+                    <option value="${iso_name}">${iso_name}</option>
+                </py:for>
+            </select>
+            <input type="submit" value="Mount ISO" />
+        </form>
+    </body>
 </html>

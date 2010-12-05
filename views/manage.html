@@ -1,98 +1,98 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
-	<xi:include href="base.html" />
-	<head>
-		<title>Manage VM</title>
-	</head>
-	<body>
-		<h1>Manage VM</h1>
-		<py:if test="vm">
-			<script type="text/javascript">
-			<![CDATA[
-			function showNameChange() {
-				elem = document.getElementById('vmname_change');
-				elem.innerHTML = ' <input type="hidden" value="${token.token}" name="token" /><input type="hidden" name="id" value="${vm.id}" /><input type="text" name="new_name" /> <input type="submit" value="Change" class="btn" />';
-				
-			}
-			]]>
-			</script>
-			<form action="/changevmname" method="POST">
-			<table class="vm_info">
-				<tr><td class="head">VM Name</td><td>${vm.name} <span id="vmname_change"><input type="button" class="btn" onclick="showNameChange()" value="Change" /></span></td><td class="head">RAM</td><td>${vm.memory}MB</td></tr>
-				<tr><td class="head">Last Launch</td><td>${vm.last_launch}</td><td class="head">CPU Cores</td><td>${vm.cpu_cores}</td></tr>
-				<tr><td class="head">Primary MAC</td><td>${vm.mac_address}</td><td class="head">Primary IP</td><td>${str(vm.assigned_ip)}</td></tr>
-				<py:for each="property in vm.properties">
-					<tr><td class="head">Disk Image</td><td colspan="3">${property.value}</td></tr>
-				</py:for>
-				<tr><td class="head">Status</td><td colspan="3"><py:if test="vm.status is True">Powered On</py:if><py:if test="vm.status is False">Powered Off</py:if></td></tr>
-			</table>
-			</form>
-			<h3>Boot Device</h3>
-			<p>Your virtual machine is currently set to boot from <py:if test="vm.boot_device == 'c'">the hard disk</py:if><py:if test="vm.boot_device != 'c'">the CD drive</py:if>.</p>
-			<form action="/changebootorder" method="POST">
-				<input type="hidden" name="token" value="${token.token}" />
-				<input type="hidden" name="id" value="${vm.id}" />
-				<select class="red" name="boot_order">
-					<option value="d">Select a different boot device here</option>
-					<option value="d">CD drive</option>
-					<option value="c">Hard disk</option>
-				</select>
-				<input class="red" type="submit" value="Change Boot Device" />
-			</form>
-			<h3>Hardware</h3>
-			<p>Your network device is currently set to: <py:if test="vm.nic_device not in nic_devices">ne2k_pci</py:if><py:if test="vm.nic_device in nic_devices">${vm.nic_device}</py:if></p>
-			<form action="/changenicdevice" method="POST">
-				<input type="hidden" name="token" value="${token.token}" />
-				<input type="hidden" name="id" value="${vm.id}" />
-				<select class="red" name="nic_device">
-					<option value="ne2k_pci">Select a different NIC device here</option>
-					<py:for each="device in nic_devices">
-						<option value="${device}">${device}</option>
-					</py:for>
-				</select>
-				<input class="red" type="submit" value="Change NIC Device" />
-			</form>
-			
-			<p>ACPI is currently <py:if test="vm.acpi is False">disabled</py:if><py:if test="vm.acpi is not False">enabled</py:if>.</p>
-			<form action="/changeacpi" method="POST">
-				<input type="hidden" name="token" value="${token.token}" />
-				<input type="hidden" name="id" value="${vm.id}" />
-				<py:if test="vm.acpi is False"><input type="checkbox" name="acpi" /></py:if>
-				<py:if test="vm.acpi is not False"><input type="checkbox" name="acpi" checked="checked" /></py:if>
-				Enable ACPI
-				<input type="submit" class="red" value="Save ACPI setting" />
-			</form>
+    <xi:include href="base.html" />
+    <head>
+        <title>Manage VM</title>
+    </head>
+    <body>
+        <h1>Manage VM</h1>
+        <py:if test="vm">
+            <script type="text/javascript">
+            <![CDATA[
+            function showNameChange() {
+                elem = document.getElementById('vmname_change');
+                elem.innerHTML = ' <input type="hidden" value="${token.token}" name="token" /><input type="hidden" name="id" value="${vm.id}" /><input type="text" name="new_name" /> <input type="submit" value="Change" class="btn" />';
+                
+            }
+            ]]>
+            </script>
+            <form action="/changevmname" method="POST">
+            <table class="vm_info">
+                <tr><td class="head">VM Name</td><td>${vm.name} <span id="vmname_change"><input type="button" class="btn" onclick="showNameChange()" value="Change" /></span></td><td class="head">RAM</td><td>${vm.memory}MB</td></tr>
+                <tr><td class="head">Last Launch</td><td>${vm.last_launch}</td><td class="head">CPU Cores</td><td>${vm.cpu_cores}</td></tr>
+                <tr><td class="head">Primary MAC</td><td>${vm.mac_address}</td><td class="head">Primary IP</td><td>${str(vm.assigned_ip)}</td></tr>
+                <py:for each="property in vm.properties">
+                    <tr><td class="head">Disk Image</td><td colspan="3">${property.value}</td></tr>
+                </py:for>
+                <tr><td class="head">Status</td><td colspan="3"><py:if test="vm.status is True">Powered On</py:if><py:if test="vm.status is False">Powered Off</py:if></td></tr>
+            </table>
+            </form>
+            <h3>Boot Device</h3>
+            <p>Your virtual machine is currently set to boot from <py:if test="vm.boot_device == 'c'">the hard disk</py:if><py:if test="vm.boot_device != 'c'">the CD drive</py:if>.</p>
+            <form action="/changebootorder" method="POST">
+                <input type="hidden" name="token" value="${token.token}" />
+                <input type="hidden" name="id" value="${vm.id}" />
+                <select class="red" name="boot_order">
+                    <option value="d">Select a different boot device here</option>
+                    <option value="d">CD drive</option>
+                    <option value="c">Hard disk</option>
+                </select>
+                <input class="red" type="submit" value="Change Boot Device" />
+            </form>
+            <h3>Hardware</h3>
+            <p>Your network device is currently set to: <py:if test="vm.nic_device not in nic_devices">ne2k_pci</py:if><py:if test="vm.nic_device in nic_devices">${vm.nic_device}</py:if></p>
+            <form action="/changenicdevice" method="POST">
+                <input type="hidden" name="token" value="${token.token}" />
+                <input type="hidden" name="id" value="${vm.id}" />
+                <select class="red" name="nic_device">
+                    <option value="ne2k_pci">Select a different NIC device here</option>
+                    <py:for each="device in nic_devices">
+                        <option value="${device}">${device}</option>
+                    </py:for>
+                </select>
+                <input class="red" type="submit" value="Change NIC Device" />
+            </form>
+            
+            <p>ACPI is currently <py:if test="vm.acpi is False">disabled</py:if><py:if test="vm.acpi is not False">enabled</py:if>.</p>
+            <form action="/changeacpi" method="POST">
+                <input type="hidden" name="token" value="${token.token}" />
+                <input type="hidden" name="id" value="${vm.id}" />
+                <py:if test="vm.acpi is False"><input type="checkbox" name="acpi" /></py:if>
+                <py:if test="vm.acpi is not False"><input type="checkbox" name="acpi" checked="checked" /></py:if>
+                Enable ACPI
+                <input type="submit" class="red" value="Save ACPI setting" />
+            </form>
 
-			<p>Selecting the -no-kvm-irqchip option can sometimes fix guest issues:</p>
-			<form action="/changenokvmirqchip" method="POST">
-				<input type="hidden" name="token" value="${token.token}" />
-				<input type="hidden" name="id" value="${vm.id}" />
-				<py:if test="vm.no_kvm_irqchip is True"><input type="checkbox" name="no_kvm_irqchip" checked="checked" /></py:if>
-				
-				<py:if test="vm.no_kvm_irqchip is False or vm.no_kvm_irqchip is None"><input type="checkbox" name="no_kvm_irqchip" /></py:if> Disable KVM IRQ chip (-no-kvm-irqchip)
-				<input type="submit" class="red" value="Save IRQ chip setting" />
-			</form>
-			<h3>Actions</h3>
-			<table class="vm_actions">
-				<tr>
-					<py:if test="vm.status is True">
-						<td>
-							<form action="/poweroff" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Power Off VM" /></form>
-						</td>
-						<td>
-							<form action="/resetvm" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Reset VM" /></form>
-						</td>
-						<td>
-							<form action="/mountiso" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Insert Virtual CDROM" /></form>
-						</td>
-					</py:if>
-					<py:if test="vm.status is False">
-						<td>
-							<form action="/poweron" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Power On VM" /></form>
-						</td>
-					</py:if>
-				</tr>
-			</table>
-		</py:if>
-	</body>
+            <p>Selecting the -no-kvm-irqchip option can sometimes fix guest issues:</p>
+            <form action="/changenokvmirqchip" method="POST">
+                <input type="hidden" name="token" value="${token.token}" />
+                <input type="hidden" name="id" value="${vm.id}" />
+                <py:if test="vm.no_kvm_irqchip is True"><input type="checkbox" name="no_kvm_irqchip" checked="checked" /></py:if>
+                
+                <py:if test="vm.no_kvm_irqchip is False or vm.no_kvm_irqchip is None"><input type="checkbox" name="no_kvm_irqchip" /></py:if> Disable KVM IRQ chip (-no-kvm-irqchip)
+                <input type="submit" class="red" value="Save IRQ chip setting" />
+            </form>
+            <h3>Actions</h3>
+            <table class="vm_actions">
+                <tr>
+                    <py:if test="vm.status is True">
+                        <td>
+                            <form action="/poweroff" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Power Off VM" /></form>
+                        </td>
+                        <td>
+                            <form action="/resetvm" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Reset VM" /></form>
+                        </td>
+                        <td>
+                            <form action="/mountiso" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Insert Virtual CDROM" /></form>
+                        </td>
+                    </py:if>
+                    <py:if test="vm.status is False">
+                        <td>
+                            <form action="/poweron" method="POST"><input type="hidden" name="token" value="${token.token}" /><input type="hidden" name="id" value="${vm.id}" /><input type="submit" value="Power On VM" /></form>
+                        </td>
+                    </py:if>
+                </tr>
+            </table>
+        </py:if>
+    </body>
 </html>

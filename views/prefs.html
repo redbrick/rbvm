@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org">
-	<xi:include href="base.html" />
-	<head>
-		<title>User Preferences</title>
-	</head>
-	<body>
-		<h1>User Preferences</h1>
-		<table class="formtable">
-			<tr>
-				<td class="key">Username</td><td colspan="2">${user.username} (this cannot be changed)</td>
-			</tr>
-			<tr>
-				<td class="key">Email address</td><td>${user.email_address}</td><td class="actions"><form action="/changeemail" method="GET"><input type="submit" onclick="changeEmail()" value="Change Email Address" /></form></td>
-			</tr>
-			<tr>
-				<td class="key">Password</td><td>(not shown)</td><td class="actions"><form action="/changepassword" method="GET"><input type="submit" onclick="changePassword" value="Change Password" /></form></td>
-			</tr>
-		</table>
-	</body>
+    <xi:include href="base.html" />
+    <head>
+        <title>User Preferences</title>
+    </head>
+    <body>
+        <h1>User Preferences</h1>
+        <table class="formtable">
+            <tr>
+                <td class="key">Username</td><td colspan="2">${user.username} (this cannot be changed)</td>
+            </tr>
+            <tr>
+                <td class="key">Email address</td><td>${user.email_address}</td><td class="actions"><form action="/changeemail" method="GET"><input type="submit" onclick="changeEmail()" value="Change Email Address" /></form></td>
+            </tr>
+            <tr>
+                <td class="key">Password</td><td>(not shown)</td><td class="actions"><form action="/changepassword" method="GET"><input type="submit" onclick="changePassword" value="Change Password" /></form></td>
+            </tr>
+        </table>
+    </body>
 </html>

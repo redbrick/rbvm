@@ -13,49 +13,49 @@ import random
 from optparse import OptionParser
 
 def main():
-	parser = OptionParser()
-	parser.add_option('-u','--username',default=None,help='the username to be created')
-	parser.add_option('-e','--email',default=None,help='the email address of the new user')
-	
-	options, args = parser.parse_args()
+    parser = OptionParser()
+    parser.add_option('-u','--username',default=None,help='the username to be created')
+    parser.add_option('-e','--email',default=None,help='the email address of the new user')
+    
+    options, args = parser.parse_args()
 
-	if options.username is None or options.email is None:
-		print "Please supply a username and email address."
-		return
-	
-	print "Connecting to database"
-	engine = create_engine(config.DATABASE_URI)
-	Session = sessionmaker()
-	Session.configure(bind=engine)
-	session = Session()
+    if options.username is None or options.email is None:
+        print "Please supply a username and email address."
+        return
+    
+    print "Connecting to database"
+    engine = create_engine(config.DATABASE_URI)
+    Session = sessionmaker()
+    Session.configure(bind=engine)
+    session = Session()
 
-	# Check that the user doesn't exist
-	user = session.query(User).filter(User.username==options.username).first()
-	if user is not None:
-		print "The user %s already exists!" % options.username
-		return
+    # Check that the user doesn't exist
+    user = session.query(User).filter(User.username==options.username).first()
+    if user is not None:
+        print "The user %s already exists!" % options.username
+        return
 
-	password = "".join(random.sample(string.letters + string.digits,8))
-	user = User(options.username,options.email, password)
-	session.add(user)
-	session.commit()
+    password = "".join(random.sample(string.letters + string.digits,8))
+    user = User(options.username,options.email, password)
+    session.add(user)
+    session.commit()
 
-	print "User created. Password is:\n\t%s" % password
-	print "Emailing user at %s" % options.email
-	s = smtplib.SMTP()
-	s.connect()
-	s.sendmail(config.EMAIL_ADDRESS, options.email, "From: %s\nTo: %s\nSubject: Your VM account has been created\n\nAn account has been created for you on the VM administration system. You\nmay log in at %s.\n\nYour details are:\n\nUsername: %s\nPassword: %s\n\nRegards,\n-Automated mailing monkey" % (config.EMAIL_ADDRESS, options.email, config.SITE_ADDRESS, options.username, password))
-	s.quit()
+    print "User created. Password is:\n\t%s" % password
+    print "Emailing user at %s" % options.email
+    s = smtplib.SMTP()
+    s.connect()
+    s.sendmail(config.EMAIL_ADDRESS, options.email, "From: %s\nTo: %s\nSubject: Your VM account has been created\n\nAn account has been created for you on the VM administration system. You\nmay log in at %s.\n\nYour details are:\n\nUsername: %s\nPassword: %s\n\nRegards,\n-Automated mailing monkey" % (config.EMAIL_ADDRESS, options.email, config.SITE_ADDRESS, options.username, password))
+    s.quit()
 
 
 if __name__ == '__main__':
-	# Don't run as anyone but SYSTEM_USER:SYSTEM_GROUP!
-	correct_gid = grp.getgrnam(config.SYSTEM_GROUP)[2]
-	if os.getgid() != correct_gid:
-		os.setgroups([correct_gid])
-		os.setregid(correct_gid,correct_gid)
+    # Don't run as anyone but SYSTEM_USER:SYSTEM_GROUP!
+    correct_gid = grp.getgrnam(config.SYSTEM_GROUP)[2]
+    if os.getgid() != correct_gid:
+        os.setgroups([correct_gid])
+        os.setregid(correct_gid,correct_gid)
 
-	correct_uid = pwd.getpwnam(config.SYSTEM_USERNAME)[2]
-	if os.getuid() != correct_uid:
-		os.setreuid(correct_uid,correct_uid)
-	main()
+    correct_uid = pwd.getpwnam(config.SYSTEM_USERNAME)[2]
+    if os.getuid() != correct_uid:
+        os.setreuid(correct_uid,correct_uid)
+    main()

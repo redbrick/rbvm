@@ -21,29 +21,29 @@ set -e
 
 case "$1" in
     purge)
-		  rm /usr/share/pyshared/rbvm/modules/kvm.pyc || true
-	     if [ -d /var/lib/rbvm ]; then
-		      echo "Removing VM directory"
-		      rm -rf /var/lib/rbvm
-		  fi
-		  if [ -x "$(command -v deluser)" ]; then
-		      deluser --system --quiet rbvm > /dev/null || true
-	     else
-		      echo >&2 "Not removing rbvm system account because deluser command not found"
-		  fi
+          rm /usr/share/pyshared/rbvm/modules/kvm.pyc || true
+         if [ -d /var/lib/rbvm ]; then
+              echo "Removing VM directory"
+              rm -rf /var/lib/rbvm
+          fi
+          if [ -x "$(command -v deluser)" ]; then
+              deluser --system --quiet rbvm > /dev/null || true
+         else
+              echo >&2 "Not removing rbvm system account because deluser command not found"
+          fi
     ;;
     
-	 remove|failed-upgrade|abort-install|abort-upgrade|disappear)
-		  rm /usr/share/pyshared/rbvm/modules/kvm.pyc || true
-		  if [ -x "$(command -v deluser)" ]; then
-		      deluser --system --quiet rbvm > /dev/null || true
-	     else
-		      echo >&2 "Not removing rbvm system account because deluser command not found"
-		  fi
+     remove|failed-upgrade|abort-install|abort-upgrade|disappear)
+          rm /usr/share/pyshared/rbvm/modules/kvm.pyc || true
+          if [ -x "$(command -v deluser)" ]; then
+              deluser --system --quiet rbvm > /dev/null || true
+         else
+              echo >&2 "Not removing rbvm system account because deluser command not found"
+          fi
     ;;
     
-	 upgrade)
-	 ;;
+     upgrade)
+     ;;
 
     *)
         echo "postrm called with unknown argument \`$1'" >&2
