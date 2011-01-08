@@ -37,7 +37,7 @@ The following columns are given:
                     host system. If the VM is powered off, this is the PID
                     that was set the last time the VM ran.
 
-The showip argument can be given to show an extra column giving the assigned
+The showips argument can be given to show an extra column giving the assigned
 IP addresses on each VM.
 """
 
