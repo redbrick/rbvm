@@ -1,3 +1,12 @@
+rbvm (0.1.96-1) stable; urgency=low
+
+  * rbvmctl tool packaged (bug #9).
+  * Added sudo dependency (bug #26).
+  * Power on action throws real exceptions now (bug #24).
+  * Code now uses spaces (bug #22).
+
+ -- Andrew Martin <werdz@redbrick.dcu.ie>  Sun, 05 Dec 2010 21:14:58 +0000
+
 rbvm (0.1.78-1) stable; urgency=low
 
   * Removed timestamp checks from check_vm_status.
