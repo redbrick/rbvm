@@ -15,7 +15,7 @@ setup(name = 'rbvm',
         'rbvm.lib',
         'rbvm.model',
     ],
-    py_modules = ['rbvm.modules.kvm'],
+    py_modules = ['rbvm.modules.kvm', 'rbvm.modules.samplevlan', 'rbvm.modules.samplevmmon'],
     license = 'bsd',
     data_files = [
         ('/etc',[
