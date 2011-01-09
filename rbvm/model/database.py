@@ -188,7 +188,12 @@ class Vlan(Base):
     __tablename__ = 'vlan'
     
     id = Column(Integer, Sequence('vlan_id_seq'), primary_key=True)
-    system_identifier = Column(String(1024),unique=True) # The system identifier for this vlan. For example, 'br1' for a linux bridge backend. Has a crazily long size in case we ever port to something nuts like windows, which will probably want a GUID code for an identifier.
+    
+    """The system identifier for this vlan. For example, 'br1' for a linux 
+    bridge backend. Has a crazily long size in case we ever port to something 
+    nuts like windows, which will probably want a GUID code for an identifier.
+    """
+    system_identifier = Column(String(1024),unique=True) # 
     
     virtual_machines = relation('VirtualMachine',secondary=vm_vlan,backref='vlans')
     admin_users = relation('User',secondary=user_admin_vlan,backref='adminned_vlan')
