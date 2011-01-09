@@ -1,4 +1,8 @@
 # coding=utf-8
+"""Old-style VM monitor module.
+TODO To be replaced by kvm2 when the new VMMON and VLAN interfaces are done.
+"""
+
 import os
 import os.path
 import re
@@ -18,6 +22,8 @@ import rbvm.config as config
 
 # This is a VM monitor control module.
 MODULE_TYPE = 'vmmon'
+MODULE_NAME = 'kvm'
+MODULE_VERSION = '0.1'
 
 # KVM abstraction layer
 
