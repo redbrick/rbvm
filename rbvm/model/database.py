@@ -8,10 +8,11 @@ import base64
 import datetime
 
 from sqlalchemy import Table,Column,MetaData,ForeignKey
-from sqlalchemy.schema import Sequence
+from sqlalchemy.schema import Sequence, ForeignKeyConstraint
 from sqlalchemy import Integer,String,DateTime,Unicode,SmallInteger,Text,Binary,Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation,backref
+from sqlalchemy.ext.associationproxy import association_proxy
 
 import rbvm.lib.sqlalchemy_tool as database
 
@@ -146,6 +147,7 @@ class VirtualMachine(Base):
     vga_device = Column(String(20)) # cirrus,std,vmware
     boot_device = Column(String(255))
     properties = relation('Property',order_by='Property.id',backref='virtual_machine')
+    vlans = association_proxy('virtual_machine_associations', 'vlan', creator=lambda v:VMVlanAssociation(virtual_machine=v))
     
     def __repr__(self):
         return "<VirtualMachine('%s')>" % (self.name)
@@ -173,14 +175,46 @@ group_admin_vlan = Table('group_admin_vlan', Base.metadata,
     Column('vlan_id',Integer,ForeignKey('vlan.id'))
 )
 
-"""
-Virtual machine <-> VLAN relationships
-"""
-vm_vlan = Table('vm_vlan',Base.metadata,
-    Column('vm_id',Integer,ForeignKey('virtual_machine.id')),
-    Column('vlan_id',Integer,ForeignKey('vlan.id'))
-)
+class VMVlanAssociationData(Base):
+    """Key/value data items attached to VMVlanAssociation
+    entries.
+    """
+    
+    __tablename__ = 'vm_vlan_association_data'
+    __table_args__ = (ForeignKeyConstraint(['vm_vlan_association_id'],['vm_vlan_association.vm_id','vm_vlan_association.vlan_id']),{})
+    
+    id = Column(Integer, Sequence('vm_vlan_association_data_seq'),primary_key=True)
+    data_key = Column(String(255))
+    value = Column(String(2048))
+    
+    vm_vlan_association_id = Column(Integer)
+    
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+    
+    def __repr__(self):
+        return "<VMVlanAssociationData(%i,'%s')>" % (self.id, self.key)
 
+class VMVlanAssociation(Base):
+    """A VM-VLAN association class
+    """
+    
+    __tablename__ = 'vm_vlan_association'
+    vm_id = Column(Integer, ForeignKey('virtual_machine.id'), primary_key=True)
+    vlan_id = Column(Integer, ForeignKey('vlan.id'), primary_key=True)
+    vlan = relation('Vlan', backref='vm_associations')
+    virtual_machine = relation('VirtualMachine', backref='vlan_associations')
+    
+    data = relation("VMVlanAssociationData", backref='vm_vlan_association')
+    
+    def __init__(self, virtual_machine=None, vlan=None):
+        self.virtual_machine = virtual_machine
+        self.vlan = vlan
+    
+    def __repr__(self):
+        return "<VMVlanAssociation(%i,%i)>" % (self.vm_id, self.vlan_id)
+    
 class Vlan(Base):
     """
     A VLAN
@@ -195,7 +229,7 @@ class Vlan(Base):
     """
     system_identifier = Column(String(1024),unique=True) # 
     
-    virtual_machines = relation('VirtualMachine',secondary=vm_vlan,backref='vlans')
+    virtual_machines = association_proxy('virtual_machine_associations', 'virtual_machine', creator=lambda v:VMVlanAssociation(vlan=v))
     admin_users = relation('User',secondary=user_admin_vlan,backref='adminned_vlan')
     admin_groups = relation('Group',secondary=group_admin_vlan,backref='adminned_vlans')
     
