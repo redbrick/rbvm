@@ -8,6 +8,11 @@
                                             
 Sample implementation of a VM monitor module.
 
+The vm_object parameter being sent to most functions is an instance of a VM
+bean. (Yeah, Python doesn't have beans, but I've been spending too much time
+around Java recently). This could then be backed with any datastore, as long
+as it provides the information that the VM monitors require. Haven't yet come
+up with a definitive interface for those beans.
 """
 
 from rbvm.errors import *
