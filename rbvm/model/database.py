@@ -91,6 +91,7 @@ class DiskImage(Base):
     size = Column(Integer)
     filename = Column(Text,unique=True)
     virtual_machine_id = Column(ForeignKey('virtual_machine.id'))
+    # TODO add a type field, since this now needs to hold ISO information
     
     def __repr__(self):
         return "<DiskImage('%s')>" % (self.filename)
@@ -127,6 +128,11 @@ class Property(Base):
 class VirtualMachine(Base):
     """
     A virtual machine
+
+    This is used by the vmmon module as an interface to $data-store. The following methods are compulsary:
+    obj.get_property(key)
+    obj.set_property(key, value)
+    
     """
     # {{{
     __tablename__ = 'virtual_machine'
@@ -156,6 +162,19 @@ class VirtualMachine(Base):
         self.name = name
         self.user_id = user.id
     
+    def get_property(self, key):
+        property_obj = session.query(Property).filter(Property.key==key).first()
+        return property_obj.value
+
+    def set_property(self, key, value):
+        try:
+            property_obj = session.query(Property).filter(Property.key==key).first()
+            assert property_obj is not None
+
+            property_obj.value = value
+        except Exception, e:
+            property_obj = Property(key, value, self)
+            session.add(property_obj)
     # }}}
 
 
