@@ -162,6 +162,9 @@ class VirtualMachine(Base):
         self.name = name
         self.user_id = user.id
     
+    def get_unique_identifier(self):
+        return self.id
+    
     def get_property(self, key):
         property_obj = session.query(Property).filter(Property.key==key).first()
         return property_obj.value
