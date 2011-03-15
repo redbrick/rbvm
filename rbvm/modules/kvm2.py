@@ -28,6 +28,49 @@ MODULE_CN = 'ie.dcu.redbrick.rbvm.kvm2'
 
 TS_FMT = '%Y-%m-%d %H:%M:%S'
 
+def _get_monitor_socket(vm_object):
+    """
+    Returns a TCP stream socket connected to the VM's monitor.
+    """
+    assert get_vm_status(vm_object) is True
+    
+    monitor_base_port = config.get_module_config_int(MODULE_NAME, 'monitorbase', 4000)
+    monitor_tcp_port = vm_object.get_unique_number(monitor_base_port, monitor_base_port + 500)
+    
+    monitor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    monitor_socket.connect((config.IO_LISTEN_ADDRESS, monitor_tcp_port))
+    return monitor_socket
+
+def _get_serial_socket(vm_object):
+    """
+    Returns a TCP stream socket connected to the VM's serial
+    port.
+    """
+    assert get_vm_status(vm_object) is True
+    
+    serial_base_port = config.get_module_config_int(MODULE_NAME, 'serialbase', 4500)
+    
+    serial_tcp_port = vm_object.get_unique_number(serial_base_port, serial_base_port + 500)
+    serial_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    serial_socket.connect((config.IO_LISTEN_ADDRESS, serial_tcp_port))
+    return serial_socket
+
+
+def _get_parallel_socket(vm_object):
+    """
+    Returns a TCP stream socket connected to the VM's parallel
+    port.
+    """
+    assert get_vm_status(vm_object) is True
+    
+    parallel_base_port = config.get_module_config_int(MODULE_NAME, 'parallelbase', 5000)
+    
+    parallel_tcp_port = vm_object.get_unique_number(parallel_base_port, parallel_base_port + 500)
+    
+    parallel_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    parallel_socket.connect((config.IO_LISTEN_ADDRESS, parallel_tcp_port))
+    return parallel_socket
+
 def get_vm_status(vm_object):
     """
     Return true or false, indicating whether or not the VM
