@@ -217,3 +217,18 @@ try:
     assert re.match(r'^[0-9a-fA-F]{2}\:[0-9a-fA-F]{2}\:[0-9a-fA-F]{2}\:00\:00\:00$', MAC_RANGE) is not None
 except:
     MAC_RANGE = 'aa:bb:cc:00:00:00'
+
+def _get_module_config_helper(module_name, key, func, default_value):
+    try:
+        return func('module_' + module_name, key)
+    except:
+        return default_value
+
+def get_module_config(module_name, key, default_value=None):
+    return _get_module_config_helper(module_name, key, config.get, default_value)
+
+def get_module_config_int(module_name, key, default_value=None):
+    return _get_module_config_helper(module_name, key, config.getint, default_value)
+
+def get_module_config_boolean(module_name, key, default_value=None):
+    return _get_module_config_helper(module_name, key, config.getboolean, default_value)

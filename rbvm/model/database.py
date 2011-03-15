@@ -165,6 +165,15 @@ class VirtualMachine(Base):
     def get_unique_identifier(self):
         return self.id
     
+    def get_unique_number(self, min_port, max_port):
+        """
+        Generate a number within a certain range that will
+        not be generated for any other VM entry, given the same range.
+        """
+        candidate = this.id + min_port
+        assert candidate >= min_port and candidate <= max_port
+        return candidate
+    
     def get_property(self, key):
         property_obj = session.query(Property).filter(Property.key==key).first()
         return property_obj.value
