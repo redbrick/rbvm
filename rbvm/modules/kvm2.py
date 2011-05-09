@@ -15,7 +15,7 @@ as it provides the information that the VM monitors require. Haven't yet come
 up with a definitive interface for those beans.
 """
 
-import datetime.datetime
+import datetime
 
 from rbvm.errors import *
 import rbvm.config as config
@@ -77,7 +77,7 @@ def get_vm_status(vm_object):
     is powered on (True) or powered off (False).
     """
     known_pid = vm_object.get_property(MODULE_CN + '.known_pid')
-    last_launch = datetime.datetime.strptime(vm_object.get_property(MODULE_CN + '.last_launch')
+    last_launch = datetime.datetime.strptime(vm_object.get_property(MODULE_CN + '.last_launch'))
     
     if known_pid is None or last_launch is None:
         return False # missing data
@@ -110,15 +110,45 @@ def list_block_devices(vm_object):
     """
     Return a list of (identifier, type) tuples describing block
     devices on the VM.
+    
+    type will be one of: floppy, hd, cdrom
     """
-    raise NotARealImplementationError
+    
+    monitor_socket = _get_monitor_socket(vm_object)
+    monitor_socket.send("info block\n")
+    block_info = socket.recv(4096)
+    monitor_socket.close()
+
+    devices = []
+    for line in lines:
+        m = re.match(r'([^:]+): type=(.*?) removable=[01].*$', line)
+        if m is not None:
+            # device match
+            devices.append((m.group(1),m.group(2)))
+    
+    return devices
 
 def set_boot_priority(vm_object, device_list):
     """
     Takes a list of boot device identifiers and sets the boot priority
     list for this VM.
     """
-    raise NotARealImplementationError
+    known_block_devices = list_block_devices(vm_object)
+    
+    # check that the device exists
+    assert device_list[0] in [x[0] for x in known_block_devices]
+    
+    top_type = device_list[0][1]
+    boot_order = None
+    if top_type == 'hd':
+        boot_order = 'c'
+    else:
+        boot_order = 'd'
+    
+    monitor_socket = _get_monitor_socket(vm_object)
+    monitor_socket.send("boot_set %s\n" % boot_order)
+    monitor_socket.recv(4096)
+    monitor_socket.close()
 
 def mount_iso(vm_object, iso_object, device_identifier=None):
     """
@@ -126,7 +156,16 @@ def mount_iso(vm_object, iso_object, device_identifier=None):
     is provided, try to mount it to that device. If none is given,
     default to the first optical device.
     """
-    raise NotARealImplementationError
+
+    if device_identifier is None:
+        device_identifier = "ide1-cd0"
+
+    monitor_cmd = "change %s %s\n" % (device_identifier, iso_object.get_image_path())
+    
+    monitor_socket = _get_monitor_socket(vm_object)
+    monitor_socket.send(monitor_cmd)
+    monitor_socket.recv(4096)
+    monitor_socket.close()
 
 def mount_disk_image(vm_object, image_object, device_identifier=None):
     """
@@ -141,23 +180,46 @@ def reset_vm(vm_object):
     """
     Reset the VM (press the virtual reset button).
     """
-    raise NotARealImplementationError
+    monitor_socket = _get_monitor_socket(vm_object)
+    monitor_cmd = "system reset\n"
+
+    monitor_socket.send(monitor_cmd)
+    monitor_socket.recv(4096)
+    monitor_socket.close()
 
 def power_off(vm_object):
     """
     Hard power-off a VM.
     """
-    raise NotARealImplementationError
+    monitor_socket = _get_monitor_socket(vm_object)
+    monitor_cmd = "quit\n"
+
+    monitor_socket.send(monitor_cmd)
+    try:
+        monitor_socket.close()
+    except:
+        pass
 
 def acpi_shutdown(vm_object):
     """
     Send ACPI shutdown to a VM.
     """
+    
+    # Apparently, KVM doesn't support this :(
+
     raise NotARealImplementationError
 
 def power_on(vm_object):
     """
     Power on a VM.
     """
-    raise NotARealImplementationError
 
+    assert get_vm_status(vm_object) is False
+    
+    smp_param = None
+    mem_param = None
+    vnc_param = None
+    hd_param = None
+    disk_images = []
+
+    # TODO finish
